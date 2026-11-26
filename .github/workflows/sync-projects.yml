@@ -1,0 +1,66 @@
+# Brings each project's latest published pages onto the site. The projects live in their own
+# repositories (projects.json) and list their public files in publish.json. Every hour this copies
+# them into projects/ (tools/sync_projects.py). If anything changed, it builds the production
+# image, runs the smoke test on it and only then commits, which redeploys the site on Railway.
+# Otherwise it does nothing.
+#
+# Run it by hand from the Actions tab ("Sync projects" > "Run workflow"). A project can also start
+# it straight away with a repository_dispatch event of type "project-updated".
+name: Sync projects
+
+on:
+  schedule:
+    - cron: "17 * * * *" # every hour, at :17
+  workflow_dispatch:
+  repository_dispatch:
+    types: [project-updated]
+
+permissions:
+  contents: write
+
+concurrency: sync-projects
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Copy each project's published files
+        id: sync
+        run: |
+          python3 tools/sync_projects.py
+          if git diff --quiet -- projects && [ -z "$(git ls-files --others --exclude-standard -- projects)" ]; then
+            echo "No project changed its published files."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            git status --short -- projects
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build and smoke-test the site
+        if: steps.sync.outputs.changed == 'true'
+        run: |
+          docker build -t site .
+          docker run -d --name site -p 8080:8080 site
+          sleep 2
+          bash tools/smoke_test.sh http://localhost:8080
+
+      - name: Publish
+        if: steps.sync.outputs.changed == 'true'
+        run: |
+          # Name the projects that changed, with the commit each was copied from.
+          SUMMARY=$(python3 - <<'PY'
+          import json, subprocess
+          lock = json.load(open("projects.lock.json"))
+          changed = subprocess.run(["git", "status", "--porcelain", "--untracked-files=all", "--", "projects"], capture_output=True, text=True).stdout
+          names = sorted({line[3:].split("/")[1] for line in changed.splitlines()})
+          print(", ".join(f"{n} {lock[n]['commit'][:7]}" for n in names))
+          PY
+          )
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add projects projects.lock.json
+          git commit -m "Update projects: $SUMMARY"
+          git push

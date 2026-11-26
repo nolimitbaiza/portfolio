@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Baizak Isaev · Renewable energy and battery software</title>
+  <!-- Old demo links (shared scenarios, auto-play, embeds) used to point here: send them to the demo. -->
+  <script>(function(){var s=location.search,h=location.hash;if(/(^|[#&])p=/.test(h)||/[?&](kiosk|embed)\b/.test(s))location.replace("ai-grid-trader"+s+h);})();</script>
+  <meta name="description" content="Baizak Isaev is a Computer Science student at North American University (class of 2027) focused on renewable energy, and the creator of AI Grid Trader, an interactive battery-trading demo on real market prices.">
+  <meta name="author" content="Baizak Isaev">
+  <!-- Link previews (LinkedIn, Slack, email, X) -->
+  <meta property="og:type" content="profile">
+  <meta property="og:site_name" content="Baizak Isaev">
+  <meta property="og:url" content="https://baizakisaev.com/">
+  <meta property="og:title" content="Baizak Isaev">
+  <meta property="og:description" content="Computer Science student at North American University (May 2027) building software for battery storage and electricity markets. Looking for a summer 2027 internship in energy software.">
+  <meta property="og:image" content="https://baizakisaev.com/assets/og-card.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Baizak Isaev, Computer Science, North American University, class of 2027: I build software that helps batteries put more solar and wind on the grid.">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://baizakisaev.com/">
+  <link rel="manifest" href="manifest.webmanifest">
+  <!-- Browser toolbar colour follows the visitor's light/dark setting. -->
+  <meta name="theme-color" content="#fafaf9" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0c0c0d" media="(prefers-color-scheme: dark)">
+  <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230c0a09'/%3E%3Cpath d='M18 5 9 18h6l-2 9 9-13h-6z' fill='%23fff'/%3E%3C/svg%3E">
+  <!-- Who this site is about, for search engines. -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Baizak Isaev",
+    "url": "https://baizakisaev.com/",
+    "image": "https://baizakisaev.com/assets/img/profile.jpg",
+    "affiliation": { "@type": "CollegeOrUniversity", "name": "North American University" },
+    "homeLocation": { "@type": "Place", "name": "Houston, TX" },
+    "knowsAbout": ["Renewable energy", "Battery energy storage", "Electricity markets"],
+    "sameAs": ["https://www.linkedin.com/in/baizakisaev/", "https://github.com/nolimitbaiza"]
+  }
+  </script>
+  <!-- Apply the saved light/dark choice before first paint (no flash). "brand-handoff": the header's
+       name stays hidden while the hero shows it (home.js), set here so it never flashes on load. -->
+  <script>if("IntersectionObserver"in window)document.documentElement.classList.add("brand-handoff");try{var t=localStorage.getItem("agt-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+  <!-- Self-hosted fonts, fetched early so text swaps once. -->
+  <link rel="preload" href="assets/fonts/inter-latin-var.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/jetbrains-mono-latin-500.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="assets/style.css?v=__BUILD__">
+  <link rel="stylesheet" href="assets/home.css?v=__BUILD__">
+</head>
+<body class="about-page">
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="container bar">
+      <a class="brand-link" href="./" aria-label="Baizak Isaev, home">
+        <span class="avatar avatar-xs" aria-hidden="true">
+          <span data-initials="BI"></span>
+          <img src="assets/img/profile-64.jpg?v=__BUILD__" srcset="assets/img/profile-64.jpg?v=__BUILD__ 64w, assets/img/profile.jpg?v=__BUILD__ 200w" sizes="28px" width="28" height="28" alt="" onerror="this.remove()">
+        </span>
+        <span class="brand-name">Baizak Isaev</span>
+      </a>
+      <nav aria-label="Site">
+        <a class="nav-link" href="#work">Work</a>
+        <a class="nav-link nav-case" href="ai-grid-trader-case-study">Case study</a>
+        <a class="nav-link" href="#about">About</a>
+        <a class="nav-link" href="#contact">Contact</a>
+        <a class="nav-cta" href="assets/Baizak-Isaev-Resume.pdf?v=__BUILD__" target="_blank" rel="noopener" type="application/pdf">Résumé<span class="sr-only"> (PDF, opens in a new tab)</span></a>
+        <button class="btn btn-icon" id="btn-theme" type="button" aria-label="Switch light / dark" title="Switch light / dark"></button>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="container">
+
+    <!-- ================================================================ HERO -->
+    <section class="hero" id="top" aria-labelledby="hero-title">
+      <div>
+        <div class="hero-id" data-enter style="--i:0">
+          <span class="avatar" aria-hidden="true">
+            <span data-initials="BI"></span>
+            <img src="assets/img/profile.jpg?v=__BUILD__" alt="" width="52" height="52" onerror="this.remove()">
+          </span>
+          <div>
+            <p class="hero-name">Baizak Isaev</p>
+            <p class="hero-role">Computer Science · North American University · Class of 2027</p>
+          </div>
+        </div>
+
+        <h1 id="hero-title" data-enter style="--i:1">
+          I build software that helps batteries put more <span class="hl">solar and wind</span> on the grid.
+        </h1>
+
+        <p class="hero-lede" data-enter style="--i:2">
+          My latest project, <a href="ai-grid-trader">AI Grid Trader</a>, is an AI agent that trades a
+          grid-scale battery on real wholesale electricity prices, and counts battery wear as a real cost.
+        </p>
+
+        <div class="hero-ctas" data-enter style="--i:3">
+          <a class="btn-v2 btn-v2--primary" href="ai-grid-trader">
+            Try the live demo
+            <svg class="arrow" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+          <a class="btn-v2" href="ai-grid-trader-case-study">
+            <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path d="M2.5 3.25h3.75A1.75 1.75 0 0 1 8 5v8a1.5 1.5 0 0 0-1.5-1.5h-4zM13.5 3.25H9.75A1.75 1.75 0 0 0 8 5v8a1.5 1.5 0 0 1 1.5-1.5h4z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+            Read the case study
+          </a>
+        </div>
+
+        <p class="status" data-enter style="--i:4">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span>Looking for a summer 2027 internship in energy software · <a href="#contact">Get in touch</a></span>
+        </p>
+      </div>
+
+      <!-- Proof above the fold: the full-year 2025 results, the same figures as the case study's
+           Results table and the posts (node tools/writing_numbers.js). Update them together. -->
+      <div class="proof" role="group" data-enter style="--i:3" aria-label="AI Grid Trader results">
+        <div class="proof-head">
+          <p class="eyebrow-v2">AI Grid Trader · Full year 2025</p>
+          <a href="ai-grid-trader-case-study#results" tabindex="-1" aria-hidden="true">Results
+            <svg viewBox="0 0 16 16" width="14" height="14"><path d="M5 11 11 5M6 5h5v5" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+        </div>
+        <dl class="metrics">
+          <div class="metric">
+            <dt>Net profit in a year, Germany</dt>
+            <dd><span class="sr-only">€2.54 million</span><span class="count" aria-hidden="true" data-count="2.54" data-decimals="2" data-prefix="€" data-suffix="M">€2.54M</span></dd>
+          </div>
+          <div class="metric">
+            <dt>Ahead of a rule-based bot</dt>
+            <dd><span class="sr-only">plus €3.09 million</span><span class="count pos" aria-hidden="true" data-count="3.09" data-decimals="2" data-prefix="+€" data-suffix="M">+€3.09M</span></dd>
+          </div>
+          <div class="metric">
+            <dt>Of the perfect-hindsight maximum, in all 3 markets</dt>
+            <dd>93–95%</dd>
+          </div>
+        </dl>
+        <p class="proof-foot">A 100 MWh battery trading every hour of 2025 on real wholesale prices in California, Germany and South Australia, planning on a forecast. Profit is after battery wear.</p>
+      </div>
+    </section>
+
+    <!-- ================================================================ WORK -->
+    <section class="section" id="work" aria-labelledby="work-title">
+      <div class="section-head" data-reveal>
+        <p class="eyebrow-v2"><span class="idx">01</span>Work</p>
+        <h2 class="section-title-v2" id="work-title">Selected projects</h2>
+      </div>
+
+      <article class="project" data-reveal data-spotlight>
+        <div class="project-media">
+          <picture>
+            <source media="(max-width: 640px)" type="image/webp" srcset="assets/img/project-chart-phone.webp?v=__BUILD__" width="1028" height="734">
+            <source media="(max-width: 640px)" srcset="assets/img/project-chart-phone.png?v=__BUILD__" width="1028" height="734">
+            <img class="only-light" src="assets/img/demo-loop.jpg?v=__BUILD__" width="1920" height="1080" loading="lazy" decoding="async" alt="AI Grid Trader in presenter mode: Germany's electricity prices swinging from 75 to 220 euros per MWh over two days, with the AI's forecast">
+          </picture>
+          <picture>
+            <source media="(max-width: 640px)" type="image/webp" srcset="assets/img/project-chart-phone-dark.webp?v=__BUILD__" width="1028" height="734">
+            <source media="(max-width: 640px)" srcset="assets/img/project-chart-phone-dark.png?v=__BUILD__" width="1028" height="734">
+            <img class="only-dark" src="assets/img/demo-loop-dark.jpg?v=__BUILD__" width="1920" height="1080" loading="lazy" decoding="async" alt="AI Grid Trader in presenter mode: Germany's electricity prices swinging from 75 to 220 euros per MWh over two days, with the AI's forecast">
+          </picture>
+          <!-- Silent demo loop (tools/build_demo_loop.py). On wider screens the still is the loop's first
+               frame, so when home.js swaps the video in, nothing visibly changes until it moves. Phones
+               keep the phone crop; reduced motion and browsers without WebM/VP9 keep the still. -->
+          <video class="demo-loop" muted loop playsinline preload="none" width="1920" height="1080"
+            data-light="assets/video/demo-loop.webm?v=__BUILD__" data-light-poster="assets/img/demo-loop.jpg?v=__BUILD__"
+            data-dark="assets/video/demo-loop-dark.webm?v=__BUILD__" data-dark-poster="assets/img/demo-loop-dark.jpg?v=__BUILD__"
+            aria-label="AI Grid Trader walking through 48 hours in Germany: why it buys, why it sells, the profit, then a full year"></video>
+          <button class="loop-toggle" type="button" aria-pressed="false" hidden>
+            <svg class="i-pause" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M5 3.5v9M11 3.5v9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            <svg class="i-play" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M5 3.2v9.6L12.5 8z" fill="currentColor"/></svg>
+            <span class="sr-only">Pause the demo video</span>
+          </button>
+        </div>
+        <div class="project-body-v2">
+          <div>
+            <ul class="tags" aria-label="Project type">
+              <li>Interactive demo</li>
+              <li>Runs in your browser</li>
+            </ul>
+            <h3><a class="project-link" href="ai-grid-trader">AI Grid Trader</a></h3>
+            <p class="project-desc">An AI agent that trades a grid-scale battery on real wholesale electricity prices.
+              It buys when power is cheap and plentiful, sells when it's scarce, and counts battery wear as a
+              real cost so the battery lasts.</p>
+            <div class="project-links">
+              <span class="project-cta" aria-hidden="true">
+                Open the project
+                <svg class="arrow" viewBox="0 0 16 16" width="16" height="16"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+              <a class="project-sub" href="ai-grid-trader-case-study">Read the case study</a>
+            </div>
+          </div>
+          <dl class="project-meta">
+            <div><dt>Markets</dt><dd>California · Germany · South Australia</dd></div>
+            <div><dt>Objective</dt><dd>Maximise profit net of battery wear</dd></div>
+            <div><dt>Method</dt><dd>Markov decision process, solved exactly with dynamic programming and re-planned every hour</dd></div>
+            <div><dt>Stack</dt><dd>JavaScript · Python · Plotly · Playwright · Docker</dd></div>
+          </dl>
+        </div>
+      </article>
+
+      <article class="project" data-reveal data-spotlight>
+        <div class="project-media project-media--bleed">
+          <picture>
+            <source media="(max-width: 640px)" type="image/webp" srcset="assets/img/f1-dashboard-phone.webp?v=__BUILD__" width="1168" height="842">
+            <source media="(max-width: 640px)" srcset="assets/img/f1-dashboard-phone.png?v=__BUILD__" width="1168" height="842">
+            <source type="image/webp" srcset="assets/img/f1-dashboard.webp?v=__BUILD__" width="1956" height="1396">
+            <img src="assets/img/f1-dashboard.png?v=__BUILD__" width="1956" height="1396" loading="lazy" decoding="async" alt="Pitwall dashboard for the 2024 season: championship points, wins and podiums, a points-progression chart and the top-five constructor standings">
+          </picture>
+          <!-- Silent loop through five seasons (tools/build_f1_shot.py); the still above is its first frame.
+               Pitwall is dark-only, so both themes get the same video. -->
+          <video class="demo-loop" muted loop playsinline preload="none" width="1956" height="1396" style="--loop-ratio: 1956 / 1396"
+            data-light="assets/video/pitwall-loop.webm?v=__BUILD__" data-light-poster="assets/img/f1-dashboard.png?v=__BUILD__"
+            data-dark="assets/video/pitwall-loop.webm?v=__BUILD__" data-dark-poster="assets/img/f1-dashboard.png?v=__BUILD__"
+            aria-label="Pitwall's overview stepping through the 2024, 1988, 2002, 2016 and 2023 seasons"></video>
+          <button class="loop-toggle" type="button" aria-pressed="false" hidden>
+            <svg class="i-pause" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M5 3.5v9M11 3.5v9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            <svg class="i-play" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M5 3.2v9.6L12.5 8z" fill="currentColor"/></svg>
+            <span class="sr-only">Pause the demo video</span>
+          </button>
+        </div>
+        <div class="project-body-v2">
+          <div>
+            <ul class="tags" aria-label="Project type">
+              <li>Data pipeline</li>
+              <li>Interactive dashboard</li>
+            </ul>
+            <h3><a class="project-link" href="pitwall/">Pitwall: F1 Constructor Performance Tracker</a></h3>
+            <p class="project-desc">Every Formula 1 constructors' championship since the first one in 1958, in one dashboard.
+              A Python pipeline loads official results into PostgreSQL, an Express API serves them, and the
+              dashboard compares teams across eras by their share of the points, since a win has been worth
+              anywhere from 8 to 25.</p>
+            <div class="project-links">
+              <span class="project-cta" aria-hidden="true">
+                Open the dashboard
+                <svg class="arrow" viewBox="0 0 16 16" width="16" height="16"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+              <a class="project-sub" href="pitwall-case-study">Read the case study</a>
+            </div>
+          </div>
+          <dl class="project-meta">
+            <div><dt>Coverage</dt><dd>12,700+ race results · 175 teams · 68 seasons</dd></div>
+            <div><dt>Finding</dt><dd>Mercedes, 2014–21: 8 straight titles and 33% of all points, against 19.5% for Red Bull</dd></div>
+            <div><dt>Stack</dt><dd>Python · Pandas · DuckDB · PostgreSQL · Express · Chart.js</dd></div>
+          </dl>
+        </div>
+      </article>
+    </section>
+
+    <!-- ================================================================ WRITING -->
+    <section class="section" id="writing" aria-labelledby="writing-title">
+      <div class="section-head" data-reveal>
+        <p class="eyebrow-v2"><span class="idx">02</span>Writing</p>
+        <h2 class="section-title-v2" id="writing-title">Notes from the build</h2>
+      </div>
+      <ul class="posts" data-stagger>
+        <li>
+          <a class="post-row" href="battery-wear-cost">
+            <span class="post-row-meta"><time datetime="2026-11-25">Nov 2026</time> · 5 min read</span>
+            <span class="post-row-title">What battery wear really costs a trading bot</span>
+            <span class="post-row-sum">A full year on real prices, with and without a price on wear: what it changes, and what it doesn't.</span>
+          </a>
+        </li>
+        <li>
+          <a class="post-row" href="perfect-hindsight-benchmark">
+            <span class="post-row-meta"><time datetime="2026-11-25">Nov 2026</time> · 4 min read</span>
+            <span class="post-row-title">Perfect hindsight: the benchmark that keeps a trading bot honest</span>
+            <span class="post-row-sum">Why I score the agent against the best possible result, and how much a worse forecast costs.</span>
+          </a>
+        </li>
+      </ul>
+    </section>
+
+    <!-- ================================================================ ABOUT -->
+    <section class="section" id="about" aria-labelledby="about-title">
+      <div class="about-v2">
+        <div class="section-head" data-reveal>
+          <p class="eyebrow-v2"><span class="idx">03</span>About me</p>
+          <h2 class="section-title-v2" id="about-title">Energy, through software.</h2>
+        </div>
+        <div data-reveal style="--i:1">
+          <p class="lead">I'm a Computer Science student at North American University in Houston, graduating in May 2027, with a strong interest in renewable energy.</p>
+          <p>Alongside my studies, I build software that explores how the power grid works, especially how
+            batteries and smarter software help the grid use more solar and wind power.</p>
+          <p class="now"><span class="now-label">Now</span>Finishing my CS degree (May 2027) and looking for a
+            summer 2027 internship in energy software.</p>
+          <dl class="facts" data-stagger>
+            <div class="fact"><dt>Studying</dt><dd>BS Computer Science<span>North American University</span></dd></div>
+            <div class="fact"><dt>Graduating</dt><dd>May 2027<span>GPA 3.75 / 4.0</span></dd></div>
+            <div class="fact"><dt>Based in</dt><dd>Houston, TX</dd></div>
+            <div class="fact"><dt>Focus</dt><dd>Battery storage &amp; electricity markets</dd></div>
+          </dl>
+          <div class="skills">
+            <h3 class="skills-title">Skills</h3>
+            <dl class="skills-list">
+              <div><dt>Languages</dt><dd><ul class="tags"><li>Python</li><li>JavaScript</li><li>SQL</li><li>C++</li><li>Java</li><li>HTML</li><li>CSS</li></ul></dd></div>
+              <div><dt>Frameworks</dt><dd><ul class="tags"><li>React</li><li>Django</li><li>Flask</li><li>Express</li><li>Streamlit</li></ul></dd></div>
+              <div><dt>Data</dt><dd><ul class="tags"><li>Pandas</li><li>NumPy</li><li>DuckDB</li><li>PostgreSQL</li><li>Plotly</li><li>Chart.js</li><li>Matplotlib</li></ul></dd></div>
+              <div><dt>Tools</dt><dd><ul class="tags"><li>Git</li><li>GitHub Actions</li><li>Docker</li><li>Playwright</li><li>PyTest</li><li>Node.js</li></ul></dd></div>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================ CONTACT -->
+    <section class="section" id="contact" aria-labelledby="contact-title">
+      <div class="contact-v2" data-reveal>
+        <p class="eyebrow-v2"><span class="idx">04</span>Contact</p>
+        <h2 id="contact-title">Let's talk energy.</h2>
+        <p class="contact-lede">I'm looking for a summer 2027 internship in energy software: battery storage,
+          electricity markets or renewables. I'm also glad to answer questions about AI Grid Trader.</p>
+
+        <div class="email-row">
+          <a class="email-big" id="email-text" href="#contact">baizak<span aria-hidden="true"></span>@baizakisaev.com</a>
+          <button class="copy-btn" type="button" data-copy-email aria-label="Copy email address">
+            <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><rect x="5" y="5" width="8" height="8" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M11 3.5V3a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+            <span>Copy</span>
+          </button>
+        </div>
+
+        <div class="contact-actions">
+          <a class="btn-v2 btn-v2--primary" id="email-link" href="#contact">
+            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zm0 1 8 7 8-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+            Email me
+          </a>
+          <a class="btn-v2" href="assets/Baizak-Isaev-Resume.pdf?v=__BUILD__" target="_blank" rel="noopener" type="application/pdf">
+            <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path d="M9.5 1.75H4.25a1 1 0 0 0-1 1v10.5a1 1 0 0 0 1 1h7.5a1 1 0 0 0 1-1V5L9.5 1.75Z M9.5 1.75V5h3.25 M5.75 8.25h4.5M5.75 10.75h3" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/></svg>
+            Résumé<span class="sr-only"> (PDF, opens in a new tab)</span>
+          </a>
+          <a class="btn-v2" href="https://www.linkedin.com/in/baizakisaev/" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9.5h4V21H3zM9.5 9.5h3.8v1.6h.06c.53-1 1.84-2.06 3.79-2.06 4.05 0 4.8 2.67 4.8 6.13V21h-4v-5.13c0-1.22-.02-2.8-1.7-2.8-1.71 0-1.97 1.33-1.97 2.71V21h-4z" fill="currentColor"/></svg>
+            LinkedIn<span class="sr-only"> (opens in a new tab)</span>
+          </a>
+          <a class="btn-v2" href="https://github.com/nolimitbaiza" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.45-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.61.07-.61 1 .07 1.53 1.03 1.53 1.03.9 1.52 2.34 1.08 2.91.83.09-.65.35-1.08.63-1.33-2.22-.25-4.55-1.11-4.55-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.65 0 0 .84-.27 2.75 1.02a9.5 9.5 0 0 1 5 0c1.91-1.29 2.75-1.02 2.75-1.02.55 1.38.2 2.4.1 2.65.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85v2.74c0 .27.18.58.69.48A10 10 0 0 0 12 2z" fill="currentColor"/></svg>
+            GitHub<span class="sr-only"> (opens in a new tab)</span>
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <span>© 2026 Baizak Isaev</span>
+      <ul>
+        <li><a href="ai-grid-trader">AI Grid Trader</a></li>
+        <li><a href="ai-grid-trader-case-study">Case study</a></li>
+        <li><a href="assets/Baizak-Isaev-Resume.pdf?v=__BUILD__" target="_blank" rel="noopener" type="application/pdf">Résumé<span class="sr-only"> (PDF, opens in a new tab)</span></a></li>
+        <li><a href="https://www.linkedin.com/in/baizakisaev/" target="_blank" rel="noopener">LinkedIn</a></li>
+        <li><a href="https://github.com/nolimitbaiza" target="_blank" rel="noopener">GitHub</a></li>
+      </ul>
+    </div>
+  </footer>
+
+  <script src="assets/site.js?v=__BUILD__"></script>
+  <script src="assets/home.js?v=__BUILD__"></script>
+  <!-- Fetch a page as soon as its link is hovered or pressed, so moving around the site feels instant. -->
+  <script type="speculationrules">{"prefetch": [{"where": {"and": [{"href_matches": "/*"}, {"not": {"href_matches": "/assets/*"}}]}, "eagerness": "moderate"}]}</script>
+</body>
+</html>

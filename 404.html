@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Page not found · Baizak Isaev</title>
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#0c0a09">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230c0a09'/%3E%3Cpath d='M18 5 9 18h6l-2 9 9-13h-6z' fill='%23fff'/%3E%3C/svg%3E">
+  <script>try{var t=localStorage.getItem("agt-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+  <!-- Self-contained on purpose: this page is shown for any unknown address, at any depth, so it
+       cannot rely on the site's stylesheet through a relative path. Colours match assets/style.css. -->
+  <style>
+    :root { --bg: #fafaf9; --surface: #ffffff; --ink: #0c0a09; --muted: #6f6863; --line: #e7e5e4; color-scheme: light; }
+    :root[data-theme="dark"] { --bg: #0c0c0d; --surface: #151517; --ink: #f5f5f4; --muted: #a1a1aa; --line: #27272a; color-scheme: dark; }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) { --bg: #0c0c0d; --surface: #151517; --ink: #f5f5f4; --muted: #a1a1aa; --line: #27272a; color-scheme: dark; }
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; }
+    body {
+      display: grid; place-items: center; padding: 24px; background: var(--bg); color: var(--ink);
+      font: 15px/1.55 Inter, ui-sans-serif, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      -webkit-font-smoothing: antialiased; text-align: center;
+    }
+    .code { margin: 0 0 10px; font-size: 12px; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+    h1 { margin: 0; font-size: clamp(30px, 4.6vw, 44px); font-weight: 650; line-height: 1.06; letter-spacing: -0.035em; }
+    p { margin: 14px auto 0; max-width: 34em; color: var(--muted); font-size: 16.5px; }
+    .links { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-top: 28px; }
+    .btn {
+      display: inline-flex; align-items: center; padding: 9px 16px; border-radius: 999px; font-size: 13.5px; font-weight: 500;
+      color: var(--ink); background: var(--surface); border: 1px solid var(--line); text-decoration: none;
+    }
+    .btn:hover { border-color: var(--muted); }
+    .btn-primary { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+    :focus-visible { outline: 2px solid #3b82f6; outline-offset: 2px; }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="code">Error 404</p>
+    <h1>Page not found</h1>
+    <p>This address doesn't exist, or the page has moved.</p>
+    <div class="links">
+      <a class="btn btn-primary" href="https://baizakisaev.com/">Go to the home page</a>
+      <a class="btn" href="https://baizakisaev.com/ai-grid-trader">Open AI Grid Trader</a>
+    </div>
+  </main>
+</body>
+</html>

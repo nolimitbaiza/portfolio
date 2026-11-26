@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Perfect hindsight: the benchmark that keeps a trading bot honest · Baizak Isaev</title>
+  <meta name="description" content="Why AI Grid Trader is scored as a share of perfect hindsight, how it compares with a simple rule-based bot, and how much a worse price forecast costs over a full year of real 2025 prices.">
+  <meta name="author" content="Baizak Isaev">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Baizak Isaev">
+  <meta property="og:url" content="https://baizakisaev.com/perfect-hindsight-benchmark">
+  <meta property="og:title" content="Perfect hindsight: the benchmark that keeps a trading bot honest">
+  <meta property="og:description" content="Why I score my battery-trading agent against the best possible result, and how much a worse forecast costs.">
+  <meta property="og:image" content="https://baizakisaev.com/assets/og-card.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Baizak Isaev, Computer Science, North American University, class of 2027: I build software that helps batteries put more solar and wind on the grid.">
+  <meta property="article:published_time" content="2026-11-25">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://baizakisaev.com/perfect-hindsight-benchmark">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#fafaf9" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0c0c0d" media="(prefers-color-scheme: dark)">
+  <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230c0a09'/%3E%3Cpath d='M18 5 9 18h6l-2 9 9-13h-6z' fill='%23fff'/%3E%3C/svg%3E">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "Perfect hindsight: the benchmark that keeps a trading bot honest",
+    "url": "https://baizakisaev.com/perfect-hindsight-benchmark",
+    "datePublished": "2026-11-25",
+    "image": "https://baizakisaev.com/assets/og-card.png",
+    "author": { "@type": "Person", "name": "Baizak Isaev", "url": "https://baizakisaev.com/" },
+    "about": ["Battery energy storage", "Electricity markets", "Forecasting", "Benchmarking"]
+  }
+  </script>
+  <!-- Saved light/dark choice before first paint. No brand handoff here: the header always shows the name. -->
+  <script>try{var t=localStorage.getItem("agt-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+  <link rel="preload" href="assets/fonts/inter-latin-var.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/jetbrains-mono-latin-500.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="assets/style.css?v=__BUILD__">
+  <link rel="stylesheet" href="assets/home.css?v=__BUILD__">
+</head>
+<body class="about-page case-study post-page">
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="container bar">
+      <a class="brand-link" href="./" aria-label="Baizak Isaev, home">
+        <span class="avatar avatar-xs" aria-hidden="true">
+          <span data-initials="BI"></span>
+          <img src="assets/img/profile-64.jpg?v=__BUILD__" srcset="assets/img/profile-64.jpg?v=__BUILD__ 64w, assets/img/profile.jpg?v=__BUILD__ 200w" sizes="28px" width="28" height="28" alt="" onerror="this.remove()">
+        </span>
+        <span class="brand-name">Baizak Isaev</span>
+      </a>
+      <nav aria-label="Site">
+        <a class="nav-link" href="./#work">Work</a>
+        <a class="nav-link nav-case" href="ai-grid-trader-case-study">Case study</a>
+        <a class="nav-link" href="./#about">About</a>
+        <a class="nav-link" href="./#contact">Contact</a>
+        <a class="nav-cta" href="assets/Baizak-Isaev-Resume.pdf?v=__BUILD__" target="_blank" rel="noopener" type="application/pdf">Résumé<span class="sr-only"> (PDF, opens in a new tab)</span></a>
+        <button class="btn btn-icon" id="btn-theme" type="button" aria-label="Switch light / dark" title="Switch light / dark"></button>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="container">
+    <article aria-labelledby="post-title">
+      <header class="cs-hero">
+        <p class="eyebrow-v2" data-enter style="--i:0"><a href="./#writing">Writing</a><span aria-hidden="true">/</span><time datetime="2026-11-25">November 25, 2026</time></p>
+        <h1 id="post-title" data-enter style="--i:1">Perfect hindsight: the benchmark that keeps a trading bot <span class="hl">honest</span>.</h1>
+        <p class="hero-lede" data-enter style="--i:2">My agent earns €2.54M a year trading a battery in Germany. Is that good? The number alone can't tell you. Here's the yardstick I use instead.</p>
+        <dl class="cs-meta" data-enter style="--i:3">
+          <div><dt>Reading time</dt><dd>4 min</dd></div>
+          <div><dt>Data</dt><dd>Real 2025 prices, full year</dd></div>
+          <div><dt>Project</dt><dd><a href="ai-grid-trader-case-study">AI Grid Trader</a></dd></div>
+        </dl>
+      </header>
+
+      <div class="cs-body post-body">
+        <h2>Profit says more about the market than the bot</h2>
+        <p>Run the same agent with the same battery through 2025 and it earns <strong>$0.87M</strong> in California,
+          <strong>€2.54M</strong> in Germany and <strong>A$8.18M</strong> in South Australia. South Australia's
+          prices swing far harder, so there is simply more money on the table. A good strategy in a calm market can
+          earn less than a poor one in a wild market, and the currencies don't even match.</p>
+
+        <h2>The ceiling: perfect hindsight</h2>
+        <p>Perfect hindsight is the same optimiser, run once over the whole year with the prices that actually
+          happened. It knows every price in advance, so no real strategy can beat it with the same battery and the
+          same accounting. It isn't a target; it's a ruler. I report the agent as a share of it:</p>
+        <p class="cs-table-title" id="t-ceiling">2025, full year, after battery wear</p>
+        <div class="cs-table-wrap" role="region" aria-labelledby="t-ceiling" tabindex="0">
+          <table class="cs-table" aria-labelledby="t-ceiling">
+            <thead><tr><th scope="col">Market</th><th scope="col">Perfect hindsight</th><th scope="col">AI agent</th><th scope="col">Share</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">California</th><td>$0.92M</td><td>$0.87M</td><td>95%</td></tr>
+              <tr><th scope="row">Germany</th><td>€2.68M</td><td>€2.54M</td><td>95%</td></tr>
+              <tr><th scope="row">South Australia</th><td>A$8.75M</td><td>A$8.18M</td><td>93%</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Now the markets compare directly: in each one the agent captures <strong>93 to 95%</strong> of what was
+          possible, while only ever seeing a forecast.</p>
+
+        <h2>And the floor</h2>
+        <p>A ceiling on its own can still flatter, so I also compare against something simple: a rule that buys when
+          the price is below its 3-hour average and sells when it's above. Over 2025, after wear, it loses $0.36M in
+          California and €0.55M in Germany, and earns A$1.33M in South Australia, 15% of the ceiling. If a strategy
+          can't clearly beat that, its cleverness isn't adding anything.</p>
+
+        <h2>What a worse forecast costs</h2>
+        <p>The agent never sees the future. Every hour it gets a fresh 24-hour forecast, re-plans, and acts on the
+          next hour only. The simulated forecast misses short spikes and flattens peaks further ahead, and the demo
+          has a slider for how wrong it is. Here's the share of hindsight as the forecast gets worse:</p>
+        <p class="cs-table-title" id="t-forecast">Share of perfect hindsight by forecast error, 2025</p>
+        <div class="cs-table-wrap" role="region" aria-labelledby="t-forecast" tabindex="0">
+          <table class="cs-table" aria-labelledby="t-forecast">
+            <thead><tr><th scope="col">Forecast error</th><th scope="col">California</th><th scope="col">Germany</th><th scope="col">South Australia</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">±5%</th><td>98%</td><td>99%</td><td>98%</td></tr>
+              <tr><th scope="row">±10%</th><td>97%</td><td>97%</td><td>95%</td></tr>
+              <tr><th scope="row">±20% <span class="cs-note">demo default</span></th><td>95%</td><td>95%</td><td>93%</td></tr>
+              <tr><th scope="row">±40%</th><td>89%</td><td>86%</td><td>89%</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Even with twice the default error, the agent keeps 86 to 89%. Re-planning every hour means a bad guess gets
+          corrected before it compounds. The gap is also a price tag on forecasting: in Germany, going from ±20% to
+          ±5% is worth about <strong>€100,000 a year</strong> for this one battery. That's what a better forecast
+          model would need to earn its keep.</p>
+
+        <h2>Ask for both numbers</h2>
+        <p>A trading result on its own is hard to judge. With a ceiling it becomes a percentage you can compare across
+          markets and years, and with a floor you can see whether the strategy is doing anything a simple rule
+          couldn't. When I see a result quoted without either, those are the first two questions I ask.</p>
+        <div class="post-end">
+          <p class="cs-fine">Numbers come from AI Grid Trader's engine with the demo's default battery for each market
+            (100 MWh, 25 MW, 88% round trip), a ±20% forecast error unless stated, and 2025 prices. In California and
+            Germany a fifth of the power is held back for grid services. To reproduce them, run
+            <code>node tools/writing_numbers.js</code> in the <a href="https://github.com/nolimitbaiza/ai-grid-trader" target="_blank" rel="noopener">project repository<span class="sr-only"> (opens in a new tab)</span></a>.</p>
+        </div>
+      </div>
+
+      <section class="section" id="contact" aria-labelledby="contact-title">
+        <div class="contact-v2" data-reveal>
+          <p class="eyebrow-v2">Keep reading</p>
+          <h2 id="contact-title">What battery wear really costs a trading bot.</h2>
+          <p class="contact-lede">A full year on real prices, with and without a price on wear: what it changes, and what it doesn't.</p>
+          <div class="contact-actions">
+            <a class="btn-v2 btn-v2--primary" href="battery-wear-cost">
+              Read the next post
+              <svg class="arrow" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+            <a class="btn-v2" href="ai-grid-trader">Try the demo</a>
+            <a class="btn-v2" id="email-link" href="./#contact">
+              <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zm0 1 8 7 8-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+              Email me
+            </a>
+          </div>
+        </div>
+      </section>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <span>© 2026 Baizak Isaev</span>
+      <ul>
+        <li><a href="./">Home</a></li>
+        <li><a href="./#writing">Writing</a></li>
+        <li><a href="https://www.linkedin.com/in/baizakisaev/" target="_blank" rel="noopener">LinkedIn</a></li>
+        <li><a href="https://github.com/nolimitbaiza" target="_blank" rel="noopener">GitHub</a></li>
+      </ul>
+    </div>
+  </footer>
+
+  <script src="assets/site.js?v=__BUILD__"></script>
+  <script src="assets/home.js?v=__BUILD__"></script>
+  <!-- Fetch a page as soon as its link is hovered or pressed, so moving around the site feels instant. -->
+  <script type="speculationrules">{"prefetch": [{"where": {"and": [{"href_matches": "/*"}, {"not": {"href_matches": "/assets/*"}}]}, "eagerness": "moderate"}]}</script>
+</body>
+</html>

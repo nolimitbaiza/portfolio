@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>What battery wear really costs a trading bot · Baizak Isaev</title>
+  <meta name="description" content="A full year of real 2025 electricity prices, traded with and without a price on battery wear: how much wear costs, why leaving it out flatters a trading bot, and what pricing it changes.">
+  <meta name="author" content="Baizak Isaev">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Baizak Isaev">
+  <meta property="og:url" content="https://baizakisaev.com/battery-wear-cost">
+  <meta property="og:title" content="What battery wear really costs a trading bot">
+  <meta property="og:description" content="A full year on real 2025 prices, with and without a price on battery wear. What it changes, and what it doesn't.">
+  <meta property="og:image" content="https://baizakisaev.com/assets/og-card.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Baizak Isaev, Computer Science, North American University, class of 2027: I build software that helps batteries put more solar and wind on the grid.">
+  <meta property="article:published_time" content="2026-11-25">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://baizakisaev.com/battery-wear-cost">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#fafaf9" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0c0c0d" media="(prefers-color-scheme: dark)">
+  <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230c0a09'/%3E%3Cpath d='M18 5 9 18h6l-2 9 9-13h-6z' fill='%23fff'/%3E%3C/svg%3E">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "What battery wear really costs a trading bot",
+    "url": "https://baizakisaev.com/battery-wear-cost",
+    "datePublished": "2026-11-25",
+    "image": "https://baizakisaev.com/assets/og-card.png",
+    "author": { "@type": "Person", "name": "Baizak Isaev", "url": "https://baizakisaev.com/" },
+    "about": ["Battery energy storage", "Battery degradation", "Electricity markets"]
+  }
+  </script>
+  <!-- Saved light/dark choice before first paint. No brand handoff here: the header always shows the name. -->
+  <script>try{var t=localStorage.getItem("agt-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+  <link rel="preload" href="assets/fonts/inter-latin-var.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/jetbrains-mono-latin-500.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="assets/style.css?v=__BUILD__">
+  <link rel="stylesheet" href="assets/home.css?v=__BUILD__">
+</head>
+<body class="about-page case-study post-page">
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="container bar">
+      <a class="brand-link" href="./" aria-label="Baizak Isaev, home">
+        <span class="avatar avatar-xs" aria-hidden="true">
+          <span data-initials="BI"></span>
+          <img src="assets/img/profile-64.jpg?v=__BUILD__" srcset="assets/img/profile-64.jpg?v=__BUILD__ 64w, assets/img/profile.jpg?v=__BUILD__ 200w" sizes="28px" width="28" height="28" alt="" onerror="this.remove()">
+        </span>
+        <span class="brand-name">Baizak Isaev</span>
+      </a>
+      <nav aria-label="Site">
+        <a class="nav-link" href="./#work">Work</a>
+        <a class="nav-link nav-case" href="ai-grid-trader-case-study">Case study</a>
+        <a class="nav-link" href="./#about">About</a>
+        <a class="nav-link" href="./#contact">Contact</a>
+        <a class="nav-cta" href="assets/Baizak-Isaev-Resume.pdf?v=__BUILD__" target="_blank" rel="noopener" type="application/pdf">Résumé<span class="sr-only"> (PDF, opens in a new tab)</span></a>
+        <button class="btn btn-icon" id="btn-theme" type="button" aria-label="Switch light / dark" title="Switch light / dark"></button>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="container">
+    <article aria-labelledby="post-title">
+      <header class="cs-hero">
+        <p class="eyebrow-v2" data-enter style="--i:0"><a href="./#writing">Writing</a><span aria-hidden="true">/</span><time datetime="2026-11-25">November 25, 2026</time></p>
+        <h1 id="post-title" data-enter style="--i:1">What battery wear really costs a <span class="hl">trading bot</span>.</h1>
+        <p class="hero-lede" data-enter style="--i:2">Every time a battery charges and discharges, it wears out a little. I ran my trading agent through a full year of real 2025 prices, with and without a price on that wear. The result wasn't what I expected.</p>
+        <dl class="cs-meta" data-enter style="--i:3">
+          <div><dt>Reading time</dt><dd>5 min</dd></div>
+          <div><dt>Data</dt><dd>Real 2025 prices, full year</dd></div>
+          <div><dt>Project</dt><dd><a href="ai-grid-trader-case-study">AI Grid Trader</a></dd></div>
+        </dl>
+      </header>
+
+      <div class="cs-body post-body">
+        <h2>The price of one cycle</h2>
+        <p>A battery's cells lose a little capacity every time they charge and discharge. The demo assumes cells
+          last about 6,000 full cycles before they're down to 80% of their capacity, so each cycle uses up
+          1/6,000th of that 20%, and replacing it means buying new cells. For a 100 MWh battery in Germany, with
+          cells at about €120 per kWh:</p>
+        <pre class="cs-code"><code>wear per cycle = 20% × 100,000 kWh × €120/kWh ÷ 6,000 cycles = €400</code></pre>
+        <p>A full cycle moves 100 MWh in and 100 MWh out, so every MWh moved costs €2. Buying power and selling it
+          back has to earn more than <strong>€4 per MWh</strong>, on top of the 12% lost on the round trip, before
+          it's worth doing.</p>
+
+        <h2>Leaving wear out flatters everyone</h2>
+        <p>The easiest mistake is to report trading revenue and stop there. Here's a full year in Germany, for my
+          agent and for a simple rule that buys when the price is below its 3-hour average and sells when it's above:</p>
+        <p class="cs-table-title" id="t-gross">Germany, 2025, full year</p>
+        <div class="cs-table-wrap" role="region" aria-labelledby="t-gross" tabindex="0">
+          <table class="cs-table" aria-labelledby="t-gross">
+            <thead><tr><th scope="col">Strategy</th><th scope="col">Before wear</th><th scope="col">Wear</th><th scope="col">After wear</th><th scope="col">Full cycles</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">AI agent</th><td>€2.69M</td><td>−€0.15M</td><td>€2.54M</td><td>379</td></tr>
+              <tr><th scope="row">Rule-based bot</th><td>−€0.35M</td><td>−€0.20M</td><td>−€0.55M</td><td>497</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>For the agent, wear is about 6% of revenue. For the rule-based bot it's much worse: it already loses
+          money, and wear makes that loss <strong>56% bigger</strong>, because it runs 31% more cycles than the agent
+          to earn less. A strategy that trades a lot looks far better on a revenue chart than on a bank statement.</p>
+
+        <h2>Does the agent need to know?</h2>
+        <p>The more interesting question is whether the agent itself has to know about wear. I ran the same agent
+          twice in each market: once with wear priced into its reward, once with wear set to zero. Then I charged
+          both for the wear they actually caused.</p>
+        <p class="cs-table-title" id="t-blind">Same agent, wear priced vs ignored, 2025</p>
+        <div class="cs-table-wrap" role="region" aria-labelledby="t-blind" tabindex="0">
+          <table class="cs-table" aria-labelledby="t-blind">
+            <thead><tr><th scope="col">Market</th><th scope="col">Cycles, priced</th><th scope="col">Cycles, ignored</th><th scope="col">After wear, priced</th><th scope="col">After wear, ignored</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">California</th><td>268</td><td>285</td><td>$0.871M</td><td>$0.874M</td></tr>
+              <tr><th scope="row">Germany</th><td>379</td><td>408</td><td>€2.542M</td><td>€2.547M</td></tr>
+              <tr><th scope="row">South Australia</th><td>418</td><td>482</td><td>A$8.175M</td><td>A$8.201M</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Pricing wear cut cycles by <strong>6 to 13%</strong>, and the money barely moved: the agent that ignored
+          wear came out ahead by 0.2 to 0.3%. That's within the noise of the model's other assumptions, such as the
+          small penalty for starting a new charge or discharge run and how energy left in the battery at the end
+          is valued. With cells this cheap, the trades a wear price removes are the marginal ones: they only just
+          cover their own wear.</p>
+
+        <h2>So why price wear at all?</h2>
+        <ul class="cs-list">
+          <li><strong>Warranties count cycles.</strong> Grid batteries are typically warrantied for about 365 full
+            cycles a year. Pricing wear keeps the agent closer to that budget: in South Australia it saves 64 cycles
+            a year, about two months of the allowance.</li>
+          <li><strong>It's a dial, not a constant.</strong> If cells cost more, or the warranty is tighter, the wear
+            price goes up and the agent gets pickier on its own. The demo has a slider for it.</li>
+          <li><strong>Honest reporting.</strong> The first table is the real lesson: always quote results after wear.
+            It's the difference between a bot that looks clever and one that makes money.</li>
+        </ul>
+
+        <h2>What I'd check next</h2>
+        <p>The ledger charges wear in proportion to the energy moved. Real cells also age with time, temperature,
+          depth of discharge and how fast they're charged. Modelling those would make wear depend on <em>how</em>
+          the battery is cycled, not just how much, and I expect it would penalise the bot's frequent small trades
+          even more.</p>
+        <div class="post-end">
+          <p class="cs-fine">Numbers come from AI Grid Trader's engine with the demo's default battery for each market
+            (100 MWh, 25 MW, 88% round trip), a ±20% forecast error unless stated, and 2025 prices. In California and
+            Germany a fifth of the power is held back for grid services. To reproduce them, run
+            <code>node tools/writing_numbers.js</code> in the <a href="https://github.com/nolimitbaiza/ai-grid-trader" target="_blank" rel="noopener">project repository<span class="sr-only"> (opens in a new tab)</span></a>.</p>
+        </div>
+      </div>
+
+      <section class="section" id="contact" aria-labelledby="contact-title">
+        <div class="contact-v2" data-reveal>
+          <p class="eyebrow-v2">Keep reading</p>
+          <h2 id="contact-title">Perfect hindsight: the benchmark that keeps a trading bot honest.</h2>
+          <p class="contact-lede">Why I score the agent against the best possible result, and how much a worse forecast costs.</p>
+          <div class="contact-actions">
+            <a class="btn-v2 btn-v2--primary" href="perfect-hindsight-benchmark">
+              Read the next post
+              <svg class="arrow" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+            <a class="btn-v2" href="ai-grid-trader">Try the demo</a>
+            <a class="btn-v2" id="email-link" href="./#contact">
+              <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zm0 1 8 7 8-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+              Email me
+            </a>
+          </div>
+        </div>
+      </section>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <span>© 2026 Baizak Isaev</span>
+      <ul>
+        <li><a href="./">Home</a></li>
+        <li><a href="./#writing">Writing</a></li>
+        <li><a href="https://www.linkedin.com/in/baizakisaev/" target="_blank" rel="noopener">LinkedIn</a></li>
+        <li><a href="https://github.com/nolimitbaiza" target="_blank" rel="noopener">GitHub</a></li>
+      </ul>
+    </div>
+  </footer>
+
+  <script src="assets/site.js?v=__BUILD__"></script>
+  <script src="assets/home.js?v=__BUILD__"></script>
+  <!-- Fetch a page as soon as its link is hovered or pressed, so moving around the site feels instant. -->
+  <script type="speculationrules">{"prefetch": [{"where": {"and": [{"href_matches": "/*"}, {"not": {"href_matches": "/assets/*"}}]}, "eagerness": "moderate"}]}</script>
+</body>
+</html>

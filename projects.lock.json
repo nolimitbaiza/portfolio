@@ -1,0 +1,12 @@
+{
+  "ai-grid-trader": {
+    "repo": "nolimitbaiza/ai-grid-trader",
+    "ref": "main",
+    "commit": "b3e776f73703c26c29b79b7e97f8c1a20bdc64fd"
+  },
+  "pitwall": {
+    "repo": "nolimitbaiza/f1_constructor_performance_tracker",
+    "ref": "master",
+    "commit": "18885db091c20f7e89c9fef60efd97ee46462fcb"
+  }
+}

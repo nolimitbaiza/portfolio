@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Pitwall — Constructor Performance</title>
+    <meta
+      name="description"
+      content="Explore Formula 1 constructor standings, compare teams and discover performance across seasons."
+    />
+    <link rel="icon" href="logo.svg" type="image/svg+xml" />
+    <!-- Page transitions: on baizakisaev.com every page cross-fades into the next (View Transitions).
+         Pitwall opts in too, inline so it applies from the very first frame; otherwise Chromium
+         cancels the fade the site has started and reports an error. Reduced motion turns it off. -->
+    <style>
+      @view-transition {
+        navigation: auto;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        @view-transition {
+          navigation: none;
+        }
+      }
+    </style>
+    <link rel="stylesheet" href="app.css" />
+    <script src="vendor/chart.umd.js" defer></script>
+    <script type="module" src="app.js"></script>
+  </head>
+  <body>
+    <a class="skip" href="#content">Skip to content</a>
+    <aside class="sidebar">
+      <!-- Logo and product name; links back to the overview -->
+      <a class="brand" href="#dashboard"
+        ><img
+          class="brand-logo"
+          src="logo.svg"
+          alt=""
+          width="34"
+          height="34"
+        />PITWALL<span class="brand-sub">CONSTRUCTOR INTELLIGENCE</span></a
+      >
+      <div class="nav-label">WORKSPACE</div>
+      <!-- Hash-based navigation: app.js renders the view for each route -->
+      <nav aria-label="Main navigation">
+        <a href="#dashboard" data-page="dashboard"
+          ><span aria-hidden="true">▦</span> Overview</a
+        >
+        <a href="#profiles" data-page="profiles"
+          ><span aria-hidden="true">◈</span> Constructors</a
+        >
+        <a href="#comparison" data-page="comparison"
+          ><span aria-hidden="true">⇄</span> Compare teams</a
+        >
+        <a href="#insights" data-page="insights"
+          ><span aria-hidden="true">▥</span> Insights & analytics</a
+        >
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="archive-label">THE CONSTRUCTOR ARCHIVE</div>
+        <strong id="archive-range">1958 — 2025</strong>
+        <p>Every era. Every rivalry.<br />The numbers behind the grid.</p>
+        <a href="monthly.html">Monthly explorer</a>
+        <div class="unofficial">Independent F1 data project</div>
+      </div>
+    </aside>
+    <div class="workspace">
+      <header class="topbar">
+        <div>
+          Formula 1 <span>/</span> <strong id="breadcrumb">Overview</strong>
+        </div>
+        <div class="data-label" id="data-label">Loading archive…</div>
+      </header>
+      <main id="content" tabindex="-1">
+        <!-- Loading and error messages -->
+        <div id="status" role="status" class="status">
+          Loading race results…
+        </div>
+        <div id="app" hidden>
+          <section class="page-heading">
+            <div>
+              <div class="eyebrow" id="eyebrow">THE BIG PICTURE</div>
+              <h1 id="page-title">Constructor overview<span>.</span></h1>
+              <p id="page-description">
+                Follow the fight for the constructors’ championship.
+              </p>
+            </div>
+            <button id="export" class="button">
+              Export results <span aria-hidden="true">↓</span>
+            </button>
+          </section>
+          <!-- Filters apply to every view; the constructor filter is shown on the overview only -->
+          <form
+            class="filterbar"
+            id="filter-form"
+            aria-label="Dashboard filters"
+          >
+            <div class="filters">
+              <label>SEASON<select id="season"></select></label
+              ><label id="constructor-filter"
+                >CONSTRUCTOR<select id="constructor">
+                  <option value="all">All constructors</option>
+                </select></label
+              >
+              <!-- Points system: official, or every race re-scored with 2025 points -->
+              <fieldset class="scoring-toggle">
+                <legend>POINTS</legend>
+                <div class="segments">
+                  <label
+                    ><input
+                      type="radio"
+                      name="scoring"
+                      value="official"
+                      checked
+                    />Official</label
+                  ><label
+                    ><input type="radio" name="scoring" value="rescored" />2025
+                    system</label
+                  >
+                </div>
+              </fieldset>
+            </div>
+            <div id="coverage" class="coverage"></div>
+          </form>
+          <!-- Explains the re-scored points; shown only when "2025 system" is selected -->
+          <p id="scoring-note" class="scoring-note" hidden></p>
+          <!-- The active view is rendered here by app.js -->
+          <div id="view"></div>
+          <footer>
+            <span
+              >PITWALL <span class="footer-slash">/</span> Built for the bigger
+              picture.</span
+            ><span id="footer-coverage"></span>
+          </footer>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

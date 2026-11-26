@@ -1,0 +1,7 @@
+{
+  "description": "Projects whose pages are published on baizakisaev.com from their own repositories. Each repository lists its public files in its publish.json; tools/sync_projects.py copies them into projects/<name>/.",
+  "projects": [
+    { "name": "ai-grid-trader", "repo": "nolimitbaiza/ai-grid-trader", "ref": "main" },
+    { "name": "pitwall", "repo": "nolimitbaiza/f1_constructor_performance_tracker", "ref": "master" }
+  ]
+}
