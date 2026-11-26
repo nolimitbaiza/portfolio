@@ -1,0 +1,717 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI Grid Trader case study · Baizak Isaev</title>
+  <meta name="description" content="How AI Grid Trader decides when a grid battery should trade: a Markov decision process solved with dynamic programming, battery wear as a cost, hourly re-planning on a forecast, and results on a full year of real 2025 prices.">
+  <meta name="author" content="Baizak Isaev">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Baizak Isaev">
+  <meta property="og:url" content="https://baizakisaev.com/ai-grid-trader-case-study">
+  <meta property="og:title" content="AI Grid Trader: case study">
+  <meta property="og:description" content="Teaching a grid battery when not to trade. The problem, the approach, the results on real 2025 prices, and what's next.">
+  <meta property="og:image" content="https://baizakisaev.com/assets/og-case-study.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="AI Grid Trader case study: teaching a grid battery when not to trade. €2.54M on a year of German prices, 93–95% of the hindsight maximum, while a rule-based bot lost €0.55M.">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://baizakisaev.com/ai-grid-trader-case-study">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#fafaf9" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0c0c0d" media="(prefers-color-scheme: dark)">
+  <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230c0a09'/%3E%3Cpath d='M18 5 9 18h6l-2 9 9-13h-6z' fill='%23fff'/%3E%3C/svg%3E">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "AI Grid Trader: case study",
+    "url": "https://baizakisaev.com/ai-grid-trader-case-study",
+    "image": "https://baizakisaev.com/assets/og-case-study.png",
+    "author": { "@type": "Person", "name": "Baizak Isaev", "url": "https://baizakisaev.com/" },
+    "about": ["Battery energy storage", "Electricity markets", "Dynamic programming"]
+  }
+  </script>
+  <!-- Saved light/dark choice before first paint. No brand handoff here: the header always shows the name. -->
+  <script>try{var t=localStorage.getItem("agt-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+  <link rel="preload" href="assets/fonts/inter-latin-var.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/jetbrains-mono-latin-500.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="assets/style.css?v=__BUILD__">
+  <link rel="stylesheet" href="assets/home.css?v=__BUILD__">
+</head>
+<body class="about-page case-study">
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="container bar">
+      <a class="brand-link" href="./" aria-label="Baizak Isaev, home">
+        <span class="avatar avatar-xs" aria-hidden="true">
+          <span data-initials="BI"></span>
+          <img src="assets/img/profile-64.jpg?v=__BUILD__" srcset="assets/img/profile-64.jpg?v=__BUILD__ 64w, assets/img/profile.jpg?v=__BUILD__ 200w" sizes="28px" width="28" height="28" alt="" onerror="this.remove()">
+        </span>
+        <span class="brand-name">Baizak Isaev</span>
+      </a>
+      <nav aria-label="Site">
+        <a class="nav-link" href="./#work">Work</a>
+        <a class="nav-link nav-case" href="ai-grid-trader-case-study" aria-current="page">Case study</a>
+        <a class="nav-link" href="./#about">About</a>
+        <a class="nav-link" href="./#contact">Contact</a>
+        <a class="nav-cta" href="assets/Baizak-Isaev-Resume.pdf?v=__BUILD__" target="_blank" rel="noopener" type="application/pdf">Résumé<span class="sr-only"> (PDF, opens in a new tab)</span></a>
+        <button class="btn btn-icon" id="btn-theme" type="button" aria-label="Switch light / dark" title="Switch light / dark"></button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Section bar with reading progress (home.js shows it after the hero and marks the current section). -->
+  <nav class="cs-subnav" aria-label="Case study sections">
+    <div class="container">
+      <ol>
+        <li><a href="#problem"><span class="idx">01</span>Problem</a></li>
+        <li><a href="#approach"><span class="idx">02</span>Approach</a></li>
+        <li><a href="#results"><span class="idx">03</span>Results</a></li>
+        <li><a href="#engineering"><span class="idx">04</span>Engineering</a></li>
+        <li><a href="#next"><span class="idx">05</span>What's next</a></li>
+        <li><a href="#guide"><span class="idx">06</span>How to use it</a></li>
+      </ol>
+    </div>
+    <div class="cs-progress" aria-hidden="true"><span></span></div>
+  </nav>
+
+  <main id="main" class="container">
+    <article aria-labelledby="cs-title">
+
+      <!-- ================================================================ INTRO -->
+      <header class="cs-hero">
+        <p class="eyebrow-v2" data-enter style="--i:0"><a href="./#work">Work</a><span aria-hidden="true">/</span>Case study</p>
+        <h1 id="cs-title" data-enter style="--i:1">AI Grid Trader: teaching a battery <span class="hl">when not to trade</span>.</h1>
+        <p class="hero-lede" data-enter style="--i:2">
+          An AI agent that trades a 100 MWh grid battery on a full year of real wholesale electricity
+          prices in California, Germany and South Australia. It only sees a forecast, it pays for its
+          own battery wear, and it is scored against both a simple trading rule and the theoretical best.
+        </p>
+        <div class="hero-ctas" data-enter style="--i:3">
+          <a class="btn-v2 btn-v2--primary" href="ai-grid-trader">
+            Try the live demo
+            <svg class="arrow" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+          <a class="btn-v2" href="https://github.com/nolimitbaiza/ai-grid-trader" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.45-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.61.07-.61 1 .07 1.53 1.03 1.53 1.03.9 1.52 2.34 1.08 2.91.83.09-.65.35-1.08.63-1.33-2.22-.25-4.55-1.11-4.55-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.65 0 0 .84-.27 2.75 1.02a9.5 9.5 0 0 1 5 0c1.91-1.29 2.75-1.02 2.75-1.02.55 1.38.2 2.4.1 2.65.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85v2.74c0 .27.18.58.69.48A10 10 0 0 0 12 2z" fill="currentColor"/></svg>
+            Source on GitHub<span class="sr-only"> (opens in a new tab)</span>
+          </a>
+          <a class="btn-v2" href="#guide">How to use the demo</a>
+        </div>
+      </header>
+
+      <!-- The 30-second version, for skimmers. Numbers match the results strip and tables below. -->
+      <section class="cs-tldr" id="summary" aria-labelledby="summary-title" data-reveal>
+        <h2 class="cs-tldr-title" id="summary-title">In 30 seconds</h2>
+        <dl class="cs-tldr-rows">
+          <div><dt>What</dt><dd>An AI agent that decides every 15 minutes whether a 100 MWh grid battery should buy,
+            sell or hold, tested on a full year of real 2025 prices in California, Germany and South Australia.</dd></div>
+          <div><dt>How</dt><dd>A Markov decision process solved exactly with dynamic programming. It re-plans every hour
+            on an imperfect forecast and charges itself for battery wear.</dd></div>
+          <div><dt>Result</dt><dd><strong>93–95%</strong> of the perfect-hindsight maximum in all three markets. In
+            Germany it earned <strong>€2.54M</strong> in a year, where a rule-based bot lost €0.55M.</dd></div>
+          <div><dt>My role</dt><dd>Built alone, end to end: the model, the Python data pipelines, the browser app,
+            automated tests and deployment.</dd></div>
+        </dl>
+        <div class="cs-skills">
+          <p class="cs-skills-label" id="skills-label">Skills shown</p>
+          <ul class="cs-tags" aria-labelledby="skills-label">
+            <li>Dynamic programming</li><li>Markov decision processes</li><li>Optimisation</li>
+            <li>JavaScript</li><li>Web Workers</li><li>Plotly</li><li>Python</li><li>Data pipelines</li>
+            <li>Financial modelling (NPV, IRR)</li><li>Playwright</li><li>GitHub Actions</li><li>Docker</li>
+            <li>Accessibility (WCAG AA)</li><li>Offline web app</li>
+          </ul>
+        </div>
+      </section>
+
+      <figure class="cs-figure" data-reveal>
+        <!-- Wide screens: a looping clip of the AI trading (home.js), over a still of its last frame. -->
+        <div class="cs-figure-media" data-clip>
+          <picture>
+            <source media="(max-width: 640px)" type="image/webp" srcset="assets/img/project-chart-phone.webp?v=__BUILD__" width="1028" height="734">
+            <source media="(max-width: 640px)" srcset="assets/img/project-chart-phone.png?v=__BUILD__" width="1028" height="734">
+            <img class="only-light" src="assets/img/chart-replay.jpg?v=__BUILD__" width="1617" height="957" loading="lazy" decoding="async" alt="A 48-hour chart of German day-ahead prices with the AI's buy markers in the cheap hours and sell markers at the evening peaks">
+          </picture>
+          <picture>
+            <source media="(max-width: 640px)" type="image/webp" srcset="assets/img/project-chart-phone-dark.webp?v=__BUILD__" width="1028" height="734">
+            <source media="(max-width: 640px)" srcset="assets/img/project-chart-phone-dark.png?v=__BUILD__" width="1028" height="734">
+            <img class="only-dark" src="assets/img/chart-replay-dark.jpg?v=__BUILD__" width="1617" height="957" loading="lazy" decoding="async" alt="A 48-hour chart of German day-ahead prices with the AI's buy markers in the cheap hours and sell markers at the evening peaks">
+          </picture>
+          <video class="clip-video" muted playsinline loop preload="none" aria-hidden="true" tabindex="-1"
+                 data-src-light="assets/video/chart-replay.webm?v=__BUILD__" data-src-dark="assets/video/chart-replay-dark.webm?v=__BUILD__"></video>
+          <button class="clip-toggle" type="button" hidden aria-label="Pause the animation" title="Pause the animation">
+            <svg class="i-pause" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M5 3.5v9M11 3.5v9" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+            <svg class="i-play" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M5 3.2v9.6L12.6 8z" fill="currentColor"/></svg>
+          </button>
+        </div>
+        <figcaption>Two days in Germany, 6–7 November 2025: the agent buys in the cheap hours and sells into the peaks.</figcaption>
+      </figure>
+
+      <!-- Headline numbers: Germany full year, from docs/methodology.md ("Full-year results"). Update together. -->
+      <section class="cs-results-strip" aria-label="Headline results" data-stagger>
+        <div class="cs-stat">
+          <p class="cs-stat-value">€2.54M</p>
+          <p class="cs-stat-label">earned trading on a year of German prices, after battery wear</p>
+        </div>
+        <div class="cs-stat">
+          <p class="cs-stat-value">93–95%</p>
+          <p class="cs-stat-label">of the perfect-hindsight maximum, in all three markets</p>
+        </div>
+        <div class="cs-stat">
+          <p class="cs-stat-value cs-neg">−€0.55M</p>
+          <p class="cs-stat-label">what a rule-based bot made on the same prices</p>
+        </div>
+      </section>
+
+      <!-- ================================================================ 01 PROBLEM -->
+      <section class="section cs-section" id="problem" aria-labelledby="problem-title">
+        <div class="cs-side" data-reveal>
+          <p class="eyebrow-v2"><span class="idx">01</span>Problem</p>
+          <h2 class="section-title-v2" id="problem-title">Cheap power, expensive cycles.</h2>
+        </div>
+        <div class="cs-body" data-reveal style="--i:1">
+          <!-- DRAFT: Baizak, rewrite this in your own words. Keep it short and true to you. -->
+          <div class="cs-why">
+            <p class="cs-why-title" id="why-title">Why I built this</p>
+            <p>I'm studying computer science because I want to work on the software side of the energy transition.
+              Batteries kept coming up as the piece that makes solar and wind usable around the clock, but most
+              explanations of how they earn money stopped at "buy low, sell high". I wanted to find out what that
+              really takes: how a battery should decide, what wear really costs, and whether a smart agent beats a
+              simple rule on real prices. Building it end to end, from raw market data to a deployed app, was also
+              the best way I knew to learn the whole stack.</p>
+          </div>
+          <p class="lead">Batteries are what let a grid run on more solar and wind. They soak up power when it's
+            plentiful and cheap, and give it back at the evening peak. The owner earns the price gap.</p>
+          <p>But every charge and discharge wears out the cells, and nobody knows tomorrow's prices for sure.
+            The two obvious strategies both fail:</p>
+          <ul class="cs-list">
+            <li><strong>Trade every price wiggle</strong>, and the wear eats the profit and shortens the battery's life.</li>
+            <li><strong>Follow a simple rule</strong> (buy below the recent average, sell above it), and you trade far too
+              often on spreads that don't cover the wear.</li>
+          </ul>
+          <p>So the question I set out to answer: <em>on real prices, with only a forecast and a fair charge for wear,
+            how much can a battery actually earn, and how close is that to the best possible?</em></p>
+        </div>
+      </section>
+
+      <!-- ================================================================ 02 APPROACH -->
+      <section class="section cs-section" id="approach" aria-labelledby="approach-title">
+        <div class="cs-side" data-reveal>
+          <p class="eyebrow-v2"><span class="idx">02</span>Approach</p>
+          <h2 class="section-title-v2" id="approach-title">Plan like an operator, pay for wear.</h2>
+        </div>
+        <div class="cs-body" data-reveal style="--i:1">
+          <h3>A decision every 15 minutes</h3>
+          <p>I framed dispatch as a Markov decision process. The state is <em>(time, state of charge, current
+            mode)</em>, the action is how much to charge, discharge or hold, and the reward is:</p>
+          <pre class="cs-code"><code>reward = arbitrage cash − battery wear − micro-cycling penalty</code></pre>
+          <p>The decision table is solved exactly with dynamic programming (Bellman updates). That's the same
+            answer a fully trained Q-learning agent converges to, but in milliseconds and identical on every run,
+            which matters when you're showing it to someone.</p>
+
+          <h3>Wear is a cost, not an afterthought</h3>
+          <p>Every MWh moved is charged its share of a cycle's wear: about <strong>€400 per cycle</strong> in Germany
+            ($500 in California, A$900 in South Australia), the price of new cells for the capacity a cycle uses up.
+            A trade whose price gap doesn't beat that is simply skipped. A small penalty for starting a new charge or
+            discharge run makes the agent commit to a few clean cycles instead of chasing noise.</p>
+
+          <h3>No peeking at the future</h3>
+          <ol class="cs-loop" aria-label="The hourly planning loop">
+            <li><span>1</span>Get a fresh 24-hour price forecast</li>
+            <li><span>2</span>Re-plan the whole day with dynamic programming</li>
+            <li><span>3</span>Execute only the next hour</li>
+            <li><span>4</span>Score it on the prices that actually happened</li>
+          </ol>
+          <p>The simulated forecast behaves like a real one: it misses short spikes, flattens peaks and dips further
+            ahead, and its errors are correlated. A slider in the demo sets how wrong it is.</p>
+
+          <h3>Two honest benchmarks</h3>
+          <dl class="facts cs-facts">
+            <div class="fact"><dt>Floor</dt><dd>Rule-based bot<span>Buys below its 3-hour average, sells above it.</span></dd></div>
+            <div class="fact"><dt>Ceiling</dt><dd>Perfect hindsight<span>One optimisation over the whole year on actual prices.</span></dd></div>
+          </dl>
+          <p>All three strategies use the same accounting, on a full calendar year of real 2025 prices in 15-minute
+            steps: CAISO SP15 (California), Germany-Luxembourg day-ahead via Energy-Charts, and AEMO SA1 (South Australia).</p>
+        </div>
+      </section>
+
+      <!-- ================================================================ 03 RESULTS -->
+      <section class="section cs-section" id="results" aria-labelledby="results-title">
+        <div class="cs-side" data-reveal>
+          <p class="eyebrow-v2"><span class="idx">03</span>Results</p>
+          <h2 class="section-title-v2" id="results-title">Close to the ceiling, far above the floor.</h2>
+        </div>
+        <div class="cs-body" data-reveal style="--i:1">
+          <p>A full year per market: 8,760 hourly re-plans over 35,040 intervals, with the default
+            100 MWh / 25 MW battery.</p>
+
+          <p class="cs-table-title" id="t-year">Energy trading over 2025, after battery wear</p>
+          <div class="cs-table-wrap" role="region" aria-labelledby="t-year" tabindex="0">
+            <table class="cs-table" aria-labelledby="t-year">
+              <thead>
+                <tr><th scope="col">Market</th><th scope="col">AI agent</th><th scope="col">Of hindsight max</th><th scope="col">Rule-based bot</th><th scope="col">ROI, trading only</th></tr>
+              </thead>
+              <tbody>
+                <tr><th scope="row">California</th><td>$0.87M</td><td>95%</td><td class="cs-neg">−$0.36M</td><td>4.4%</td></tr>
+                <tr><th scope="row">Germany</th><td>€2.54M</td><td>95%</td><td class="cs-neg">−€0.55M</td><td>12.4%</td></tr>
+                <tr><th scope="row">South Australia</th><td>A$8.18M</td><td>93%</td><td>+A$1.33M</td><td>21.2%</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p class="cs-table-title" id="t-life">Over a 15-year life, with grid services, real wear and cell replacements</p>
+          <div class="cs-table-wrap" role="region" aria-labelledby="t-life" tabindex="0">
+            <table class="cs-table" aria-labelledby="t-life">
+              <thead>
+                <tr><th scope="col">Market</th><th scope="col">Revenue per year</th><th scope="col">Lifetime value (NPV)</th><th scope="col">IRR</th><th scope="col">Payback</th></tr>
+              </thead>
+              <tbody>
+                <tr><th scope="row">California <span class="cs-note">30% tax credit</span></th><td>$2.67M</td><td class="cs-neg">−$0.9M</td><td>7.2%</td><td>8.5 years</td></tr>
+                <tr><th scope="row">Germany</th><td>€3.17M</td><td>+€2.5M</td><td>10.0%</td><td>7.3 years</td></tr>
+                <tr><th scope="row">South Australia</th><td>A$8.18M</td><td>+A$21.1M</td><td>16.5%</td><td>5.2 years</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>What I took away</h3>
+          <ul class="cs-list">
+            <li><strong>A forecast is enough.</strong> Seeing only a forecast, the agent still captures 93–95% of
+              what perfect hindsight could earn.</li>
+            <li><strong>Knowing when not to trade is the edge.</strong> The rule-based bot loses money over a year in
+              California and Germany, and over the project's life in all three markets, mostly by cycling on spreads
+              that don't pay for the wear.</li>
+            <li><strong>The market matters more than the algorithm.</strong> The same battery pays back in about 5 years
+              in South Australia and doesn't cover its cost of capital in California at 2025 prices, even with the tax credit.</li>
+            <li><strong>Wear pricing is visible.</strong> Drag the demo's wear cost to zero and the agent starts
+              micro-cycling straight away.</li>
+          </ul>
+          <p class="cs-fine">8% discount rate, 2025 benchmark installed costs. Results are illustrative: forecast error
+            is simulated, and past prices don't guarantee future revenue.</p>
+        </div>
+      </section>
+
+      <!-- ================================================================ 04 ENGINEERING -->
+      <section class="section cs-section" id="engineering" aria-labelledby="engineering-title">
+        <div class="cs-side" data-reveal>
+          <p class="eyebrow-v2"><span class="idx">04</span>Engineering</p>
+          <h2 class="section-title-v2" id="engineering-title">Built to be shown, anywhere.</h2>
+        </div>
+        <div class="cs-body" data-reveal style="--i:1">
+          <h3 id="arch-title">How it fits together</h3>
+          <div class="cs-arch" role="group" aria-labelledby="arch-title">
+            <p class="cs-arch-lane" id="lane-run">Runs in your browser, no server</p>
+            <ol class="cs-arch-flow" aria-labelledby="lane-run">
+              <li><b>Price data</b><span>Python pipelines turn CAISO, AEMO and Energy-Charts data into one file per market</span></li>
+              <li class="is-core"><b>Planner</b><span>The Markov decision process, solved by dynamic programming</span></li>
+              <li><b>Web Workers</b><span>Run a year's 8,760 hourly re-plans without freezing the page</span></li>
+              <li><b>Interface</b><span>Plotly charts, “Why this trade?”, Present mode, PDF business case</span></li>
+            </ol>
+            <p class="cs-arch-lane" id="lane-ship">Ships on every push</p>
+            <ol class="cs-arch-flow" aria-labelledby="lane-ship">
+              <li><b>GitHub</b><span>Every push to main, plus a monthly job that refreshes the data</span></li>
+              <li><b>Tests</b><span>Model tests, Playwright in three browsers, an accessibility audit, an offline check</span></li>
+              <li><b>Container</b><span>Caddy in Docker on Railway, with build-stamped files</span></li>
+              <li><b>Visitors</b><span>Through Cloudflare; a service worker keeps a copy for offline use</span></li>
+            </ol>
+          </div>
+          <dl class="facts cs-facts" data-stagger>
+            <div class="fact"><dt>Runs in the browser</dt><dd>No server<span>A full year of simulation runs in Web Workers in a few seconds, so the page never freezes.</span></dd></div>
+            <div class="fact"><dt>Works offline</dt><dd>Installable app<span>A service worker keeps a copy, so it opens at a venue with no Wi-Fi.</span></dd></div>
+            <div class="fact"><dt>Explains itself</dt><dd>“Why this trade?”<span>Click any buy or sell to see the plan, the forecast and the margin the agent had at that moment.</span></dd></div>
+            <div class="fact"><dt>Tested on every push</dt><dd>CI with GitHub Actions<span>Model tests, Playwright in Chromium, Firefox and WebKit, an offline check and an axe accessibility audit.</span></dd></div>
+            <div class="fact"><dt>Real data, kept fresh</dt><dd>Python pipelines<span>CAISO, AEMO and Energy-Charts data, refreshed by a monthly job when a new year is complete.</span></dd></div>
+            <div class="fact"><dt>Deployed</dt><dd>Docker on Railway<span>A small Caddy container behind Cloudflare, with build-stamped files so a release is never mixed with old caches.</span></dd></div>
+          </dl>
+        </div>
+      </section>
+
+      <!-- ================================================================ 05 NEXT
+           Written from the limitations in docs/methodology.md. -->
+      <section class="section cs-section" id="next" aria-labelledby="next-title">
+        <div class="cs-side" data-reveal>
+          <p class="eyebrow-v2"><span class="idx">05</span>What's next</p>
+          <h2 class="section-title-v2" id="next-title">What I'd build next.</h2>
+        </div>
+        <div class="cs-body" data-reveal style="--i:1">
+          <ol class="cs-next">
+            <li><strong>A real price forecaster.</strong> Forecast error is simulated today. Training a model on load,
+              wind and solar forecasts would show how much of the remaining 5–7% gap to hindsight a better forecast closes.</li>
+            <li><strong>Physics-based degradation.</strong> Wear is a flat cost per cycle. Making it depend on depth of
+              discharge, state of charge and temperature would change which cycles are worth taking.</li>
+            <li><strong>Co-optimising grid services.</strong> Power for frequency services is reserved up front. Deciding
+              hour by hour whether a megawatt earns more in trading or in services should lift revenue.</li>
+            <li><strong>Financing and taxes.</strong> The lifetime model leaves out debt, taxes and residual value, which a
+              real investment case needs.</li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- ================================================================ 06 GUIDE
+           How to use the demo. Keep in step with ai-grid-trader.html, the CONTROLS list in
+           assets/app.js and docs/user-guide.md. -->
+      <section class="section cs-section" id="guide" aria-labelledby="guide-title">
+        <div class="cs-side" data-reveal>
+          <p class="eyebrow-v2"><span class="idx">06</span>How to use it</p>
+          <h2 class="section-title-v2" id="guide-title">A guide to every feature.</h2>
+        </div>
+        <div class="cs-body" data-reveal style="--i:1">
+          <p class="lead">The demo runs entirely in your browser. Pick a market, and every number on the page
+            updates as you change a setting. Here is what each part does and how to use it.</p>
+          <nav aria-label="Guide contents">
+            <ul class="cs-toc">
+              <li><a href="#guide-start">First steps</a></li>
+              <li><a href="#guide-markets">Markets</a></li>
+              <li><a href="#guide-chart">Chart and numbers</a></li>
+              <li><a href="#guide-why">Why this trade?</a></li>
+              <li><a href="#guide-sees">Forecast or hindsight</a></li>
+              <li><a href="#guide-settings">Settings</a></li>
+              <li><a href="#guide-compare">Comparison</a></li>
+              <li><a href="#guide-year">Full year</a></li>
+              <li><a href="#guide-streams">Revenue streams</a></li>
+              <li><a href="#guide-life">Lifetime</a></li>
+              <li><a href="#guide-share">Share and present</a></li>
+              <li><a href="#guide-keys">Shortcuts</a></li>
+            </ul>
+          </nav>
+
+          <h3 id="guide-start">Your first two minutes</h3>
+          <ol class="cs-loop" aria-label="A first look, step by step">
+            <li><span>1</span>Pick a market at the top, for example Germany</li>
+            <li><span>2</span>Read the five headline numbers above the chart</li>
+            <li><span>3</span>Click a <b class="cs-up">▲</b> or <b class="cs-down">▼</b> to see why the AI made that trade</li>
+            <li><span>4</span>Drag <em>Wear cost per cycle</em> to zero and watch it trade far more</li>
+          </ol>
+
+          <h3 id="guide-markets">Markets and days</h3>
+          <dl class="cs-features">
+            <div>
+              <dt>Simulated</dt>
+              <dd>Four made-up 48-hour price patterns, in dollars. <strong>Typical day</strong> has morning and
+                evening peaks with a midday solar dip. <strong>Volatile</strong> adds more noise and price spikes.
+                <strong>Solar surplus</strong> has a deep midday dip. <strong>Heatwave</strong> has a very high
+                evening peak. They are the quickest way to see the idea.</dd>
+            </div>
+            <div>
+              <dt>Real prices</dt>
+              <dd><strong>California</strong> (CAISO SP15, $), <strong>Germany</strong> (day-ahead, €) and
+                <strong>South Australia</strong> (AEMO SA1, A$): every 15-minute price of 2025. The chart shows two
+                days; the full-year section uses all of them. Each market brings its own installed cost, cost of
+                new cells, tax credit, grid-services price and capacity payment, and a wear cost to match.</dd>
+            </div>
+            <div>
+              <dt>Date menu, New day <kbd>N</kbd></dt>
+              <dd>For a real market, the date menu picks which 48 hours to show, and <strong>New day</strong> moves
+                to the next two days. For a simulated market, New day makes a fresh price pattern of the same kind.</dd>
+            </div>
+            <div>
+              <dt>Upload CSV</dt>
+              <dd>Runs the agent on any market's prices. Use a CSV with a price column, ideally with a timestamp
+                column, in 5, 15, 30 or 60-minute steps and at least 48 hours long; commas or semicolons, decimal
+                points or commas all work. Four weeks or more also gets the full-year view, scaled to 365 days.
+                The file is read in your browser and never uploaded.</dd>
+            </div>
+          </dl>
+          <pre class="cs-code"><code>timestamp,price_eur_mwh
+2025-06-02 00:00,61.20
+2025-06-02 01:00,58.75</code></pre>
+
+          <h3 id="guide-chart">The main chart and headline numbers</h3>
+          <dl class="cs-features">
+            <div>
+              <dt><i class="cs-sw cs-sw-price" aria-hidden="true"></i>Actual price</dt>
+              <dd>The market price in each 15-minute step, per MWh.</dd>
+            </div>
+            <div>
+              <dt><i class="cs-sw cs-sw-dash" aria-hidden="true"></i>Forecast at start</dt>
+              <dd>What the agent's forecast looked like at the first hour. It gets a fresh forecast every hour
+                after that, so later decisions use newer forecasts than the one drawn.</dd>
+            </div>
+            <div>
+              <dt><i class="cs-sw cs-sw-area" aria-hidden="true"></i>Battery charge</dt>
+              <dd>How full the battery is, from 0 to 100%, on the right-hand axis.</dd>
+            </div>
+            <div>
+              <dt><b class="cs-up" aria-hidden="true">▲</b> AI buys, <b class="cs-down" aria-hidden="true">▼</b> AI sells</dt>
+              <dd>Where the AI charges from the grid and where it sells. Hover over the chart for exact prices and
+                times.</dd>
+            </div>
+            <div>
+              <dt>Net profit, 48 hours</dt>
+              <dd>Trading revenue minus battery wear over the two days.</dd>
+            </div>
+            <div>
+              <dt>vs. rule-based bot</dt>
+              <dd>How much more, or less, the AI earned than a simple bot that buys when the price is below its
+                3-hour average and sells when it is above.</dd>
+            </div>
+            <div>
+              <dt>Of hindsight maximum</dt>
+              <dd>The AI's profit as a share of the most any strategy could have earned knowing every price in
+                advance.</dd>
+            </div>
+            <div>
+              <dt>Battery cycles used</dt>
+              <dd>Full charge-and-discharge cycles, next to the bot's. Fewer cycles for the same profit means less
+                wear and a longer-lived battery.</dd>
+            </div>
+            <div>
+              <dt>Estimated annual ROI</dt>
+              <dd>A year's trading profit as a share of the installed cost, with the payback time. Real markets
+                take it from the full-year simulation; simulated ones scale up the 48 hours.</dd>
+            </div>
+          </dl>
+          <p>A sentence under the chart sums it up: how much more the AI earned, how many cycles it saved, and the
+            price gap a trade has to beat before it pays for its wear.</p>
+
+          <h3 id="guide-why">Why this trade?</h3>
+          <p>Click any <b class="cs-up">▲</b> or <b class="cs-down">▼</b>, or <strong>explain the first trade</strong>
+            under the chart, and a panel explains that decision:</p>
+          <ul class="cs-list">
+            <li><strong>What it did:</strong> how many MW it bought or sold, at what price and when.</li>
+            <li><strong>Why:</strong> for a buy, the price its forecast expected when it planned to sell that
+              energy; for a sell, what the energy cost and whether higher prices were coming.</li>
+            <li><strong>The numbers:</strong> cost per stored MWh and the sale price, both after efficiency losses,
+              the battery wear per MWh, and the margin left over.</li>
+            <li><strong>What really happened,</strong> since the forecast can be wrong, and what the rule-based bot
+              did at the same moment.</li>
+          </ul>
+          <p><strong>Previous trade</strong> and <strong>Next trade</strong> step through every decision in order,
+            and × closes the panel.</p>
+
+          <h3 id="guide-sees">Forecast or perfect hindsight <kbd>H</kbd></h3>
+          <p>The <strong>Agent sees</strong> switch above the chart sets what the AI knows. <strong>Forecast</strong>
+            is the realistic case: it plans on an imperfect forecast, re-plans every hour and is scored on the prices
+            that actually happened. <strong>Perfect hindsight</strong> lets it see every future price, which is the
+            most any strategy could earn. Switching between the two shows what forecast error costs.</p>
+
+          <h3 id="guide-settings">Settings</h3>
+          <p>The first four sliders sit under the chart, and the rest open under <strong>More settings</strong>.
+            The AI re-plans as soon as you move one.</p>
+          <dl class="cs-features">
+            <div>
+              <dt>Battery size</dt>
+              <dd>How much energy the battery holds, in MWh. Default 100 MWh.</dd>
+            </div>
+            <div>
+              <dt>Power rating</dt>
+              <dd>How fast it can charge or discharge, in MW. Size divided by power is how long a full charge
+                lasts: 100 MWh at 25 MW is a 4-hour battery.</dd>
+            </div>
+            <div>
+              <dt>Wear cost per cycle</dt>
+              <dd>What one full cycle costs in lost battery life. The AI only trades when the price gap beats it;
+                at zero it trades on every small wiggle.</dd>
+            </div>
+            <div>
+              <dt>Forecast error</dt>
+              <dd>How wrong the forecast is, from none to ±40%. Like a real forecast, its errors grow further ahead,
+                miss short spikes and flatten peaks and dips.</dd>
+            </div>
+            <div>
+              <dt>Price volatility</dt>
+              <dd>Simulated markets only: how much random noise is added to the prices.</dd>
+            </div>
+            <div>
+              <dt>Round-trip efficiency</dt>
+              <dd>The share of energy that comes back out after charging; the rest is lost as heat. Lower efficiency
+                needs bigger price gaps.</dd>
+            </div>
+            <div>
+              <dt>Micro-cycling penalty</dt>
+              <dd>A charge for starting each new charge or discharge run, so the AI commits to a few clean cycles
+                instead of many short ones.</dd>
+            </div>
+            <div>
+              <dt>Installed cost</dt>
+              <dd>What the battery cost to build, per kWh. It sets ROI, payback and lifetime value, not the trading
+                decisions.</dd>
+            </div>
+            <div>
+              <dt>Tax credit on installed cost</dt>
+              <dd>A share of the installed cost paid back up front, like the US investment tax credit (30% by
+                default in California).</dd>
+            </div>
+            <div>
+              <dt>Lowest and highest charge level</dt>
+              <dd>The range the battery is kept within, which protects the cells. Default 10–90%.</dd>
+            </div>
+          </dl>
+
+          <h3 id="guide-compare">How it compares</h3>
+          <p>A table puts the AI, perfect hindsight and the rule-based bot side by side on the same 48 hours:
+            trading revenue, battery wear, net profit, cycles used and charge and discharge runs. The
+            <strong>Profit after battery wear</strong> chart next to it shows each one's running total.</p>
+
+          <h3 id="guide-year">A full year on real prices</h3>
+          <p>For the real markets, and an uploaded CSV of four weeks or more, the same agent then trades every hour of
+            the year in the background, re-planning on a 24-hour forecast each time. A progress line shows how far it
+            has got, and the page stays usable. When it finishes you get:</p>
+          <ul class="cs-list">
+            <li>Net revenue for the year, the gain over the bot, the share of the hindsight maximum, and annual ROI
+              with payback time.</li>
+            <li>Net revenue per month as bars against the hindsight maximum as a line, which shows the seasons.</li>
+            <li>A table of revenue, wear, cycles and runs per year for all three strategies.</li>
+          </ul>
+
+          <h3 id="guide-streams">Revenue streams</h3>
+          <p>A battery can earn more than trading. This section adds up a year's income in a bar and a table, with
+            the annual ROI for all streams and for trading alone. Four sliders set it up:</p>
+          <dl class="cs-features">
+            <div>
+              <dt>Power reserved for grid services</dt>
+              <dd>The share of power kept back for frequency services. It is paid for being available, and can't
+                be used for trading.</dd>
+            </div>
+            <div>
+              <dt>Grid services price</dt>
+              <dd>What frequency services pay, per MW per hour. Each real market starts at its 2025 average.</dd>
+            </div>
+            <div>
+              <dt>Capacity payment</dt>
+              <dd>A yearly payment per kW for being available at peak times. Batteries shorter than 4 hours get
+                part of it. Germany and South Australia have none.</dd>
+            </div>
+            <div>
+              <dt>Co-located solar</dt>
+              <dd>Solar panels at the same site. The battery stores the midday output the inverter can't export,
+                for free. The solar output is simulated, typical for the region.</dd>
+            </div>
+          </dl>
+
+          <h3 id="guide-life">Battery lifetime</h3>
+          <p>This turns one year into the whole project: cash flow for every year of the battery's life, with the
+            cells wearing out and new ones bought when health drops below 80%. It shows the lifetime value (NPV),
+            internal rate of return, payback time and how many times new cells are needed, each next to the bot's,
+            plus charts of battery health and cumulative cash flow.</p>
+          <dl class="cs-features">
+            <div>
+              <dt>Project life</dt>
+              <dd>How many years the project runs, from 10 to 20.</dd>
+            </div>
+            <div>
+              <dt>Discount rate</dt>
+              <dd>How much less future cash is worth today; it sets the NPV.</dd>
+            </div>
+            <div>
+              <dt>Cycle life (to 80% health)</dt>
+              <dd>How many full cycles the cells last before they hold 20% less energy.</dd>
+            </div>
+            <div>
+              <dt>Cost of new cells</dt>
+              <dd>The price of replacement cells per kWh, which falls 3% a year.</dd>
+            </div>
+          </dl>
+          <p>The summary underneath compares the cycles a year with a typical warranty limit of 365, and works out
+            what wear really costs per cycle under these assumptions. If that differs from the agent's wear price, a
+            <strong>Use …</strong> button sets the agent to the physical figure and it re-plans.</p>
+
+          <h3 id="guide-share">Sharing and presenting</h3>
+          <dl class="cs-features">
+            <div>
+              <dt>Share</dt>
+              <dd>Copies a link that stores every setting, so whoever opens it sees exactly your scenario. On a
+                phone it opens the share menu. An uploaded CSV isn't included.</dd>
+            </div>
+            <div>
+              <dt>Business case</dt>
+              <dd>A one-page PDF of the scenario on screen. Enter who it's for, the project, your name and contact,
+                then choose <em>Save as PDF</em> in the print window. Nothing is uploaded.</dd>
+            </div>
+            <div>
+              <dt>Present <kbd>F</kbd></dt>
+              <dd>A full-screen walkthrough in large type, one step at a time: the prices, the AI's first buy and
+                first sell with the reason for each, the rest of the 48 hours, the result against the bot, the full
+                year, the lifetime, and a closing screen with QR codes. A presentation clicker works too.</dd>
+            </div>
+            <div>
+              <dt>Auto-play <kbd>K</kbd></dt>
+              <dd>Plays every market in turn while the numbers count up, for a screen at a stand. For a screen that
+                runs all day, open <a href="ai-grid-trader?kiosk=1">ai-grid-trader?kiosk=1</a>: it starts by
+                itself, hands control to anyone who taps, and starts again after a minute with no one using it.</dd>
+            </div>
+            <div>
+              <dt>Light or dark <kbd>T</kbd></dt>
+              <dd>The sun and moon button switches theme, and your choice is remembered.</dd>
+            </div>
+            <div>
+              <dt>Works offline</dt>
+              <dd>Open the demo once while online and it opens later with no connection. You can also install it
+                like an app: the install icon in Chrome or Edge's address bar, or <em>Share → Add to Home Screen</em>
+                on iPhone and iPad.</dd>
+            </div>
+          </dl>
+
+          <h3 id="guide-keys">Keyboard shortcuts</h3>
+          <div class="cs-table-wrap" role="region" aria-labelledby="guide-keys" tabindex="0">
+            <table class="cs-table cs-table--text" aria-labelledby="guide-keys">
+              <thead>
+                <tr><th scope="col">Key</th><th scope="col">On the demo page</th><th scope="col">In Present</th></tr>
+              </thead>
+              <tbody>
+                <tr><th scope="row"><kbd>1</kbd>–<kbd>7</kbd></th><td>Switch market: 1–4 simulated, 5–7 real</td><td>The same</td></tr>
+                <tr><th scope="row"><kbd>N</kbd></th><td>New day</td><td>–</td></tr>
+                <tr><th scope="row"><kbd>H</kbd></th><td>Forecast or perfect hindsight</td><td>–</td></tr>
+                <tr><th scope="row"><kbd>F</kbd></th><td>Start Present</td><td>Full screen on or off</td></tr>
+                <tr><th scope="row"><kbd>K</kbd></th><td>Auto-play on or off</td><td>–</td></tr>
+                <tr><th scope="row"><kbd>T</kbd></th><td>Light or dark</td><td>The same</td></tr>
+                <tr><th scope="row"><kbd>→</kbd> <kbd>Space</kbd></th><td>–</td><td>Next step</td></tr>
+                <tr><th scope="row"><kbd>←</kbd></th><td>–</td><td>Previous step</td></tr>
+                <tr><th scope="row"><kbd>Home</kbd> <kbd>End</kbd></th><td>–</td><td>First or last step</td></tr>
+                <tr><th scope="row"><kbd>Esc</kbd></th><td>–</td><td>Leave Present</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="cs-fine">Every control works with the keyboard alone and shows a focus ring, and the charts have
+            text descriptions for screen readers.</p>
+        </div>
+      </section>
+
+      <!-- ================================================================ CTA -->
+      <section class="section" id="contact" aria-labelledby="contact-title">
+        <div class="contact-v2" data-reveal>
+          <p class="eyebrow-v2">Try it yourself</p>
+          <h2 id="contact-title">See it on your own prices.</h2>
+          <p class="contact-lede">The demo takes a CSV of any market's prices and runs entirely in your browser:
+            nothing is uploaded. Questions about the model, or working on storage? I'd be glad to talk.</p>
+          <div class="contact-actions">
+            <a class="btn-v2 btn-v2--primary" href="ai-grid-trader">
+              Open the demo
+              <svg class="arrow" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+            <a class="btn-v2" id="email-link" href="./#contact">
+              <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zm0 1 8 7 8-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+              Email me
+            </a>
+            <a class="btn-v2" href="https://github.com/nolimitbaiza/ai-grid-trader" target="_blank" rel="noopener">
+              Source on GitHub<span class="sr-only"> (opens in a new tab)</span>
+            </a>
+            <a class="btn-v2" href="assets/Baizak-Isaev-Resume.pdf?v=__BUILD__" target="_blank" rel="noopener" type="application/pdf">
+              Résumé<span class="sr-only"> (PDF, opens in a new tab)</span>
+            </a>
+          </div>
+        </div>
+      </section>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <span>© 2026 Baizak Isaev</span>
+      <ul>
+        <li><a href="./">Home</a></li>
+        <li><a href="ai-grid-trader">AI Grid Trader</a></li>
+        <li><a href="https://www.linkedin.com/in/baizakisaev/" target="_blank" rel="noopener">LinkedIn</a></li>
+        <li><a href="https://github.com/nolimitbaiza" target="_blank" rel="noopener">GitHub</a></li>
+      </ul>
+    </div>
+  </footer>
+
+  <script src="assets/site.js?v=__BUILD__"></script>
+  <script src="assets/home.js?v=__BUILD__"></script>
+  <!-- Fetch a page as soon as its link is hovered or pressed, so moving around the site feels instant. -->
+  <script type="speculationrules">{"prefetch": [{"where": {"and": [{"href_matches": "/*"}, {"not": {"href_matches": "/assets/*"}}]}, "eagerness": "moderate"}]}</script>
+</body>
+</html>

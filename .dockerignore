@@ -1,0 +1,7 @@
+# Only what tools/assemble.py needs goes into the build: the site's files, projects/ and projects.json.
+.git
+.github
+docs
+shots
+**/__pycache__
+*.md

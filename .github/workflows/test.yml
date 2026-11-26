@@ -1,0 +1,89 @@
+# Runs on every push and pull request:
+#   test       syntax checks, and that the site assembles (no two parts publish the same address)
+#   browsers   every page in real browsers (tools/browser_check.py) and the release-upgrade check
+#   container  the production image: it builds, the server config is valid, the addresses answer
+name: Tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: JavaScript syntax
+        run: |
+          node --check assets/site.js
+          node --check assets/home.js
+          node --check sw.js
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Python syntax
+        run: python -m py_compile tools/*.py
+
+      - name: The site assembles
+        run: python tools/assemble.py list > /dev/null
+
+  browsers:
+    # The pages themselves in Firefox, Chromium and WebKit (Safari's engine), plus an iPad and
+    # offline. Screenshots are kept as a downloadable artifact.
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Playwright browsers
+        run: |
+          pip install playwright
+          python -m playwright install --with-deps chromium firefox webkit
+
+      - name: Browser checks
+        run: |
+          python tools/serve.py 8600 > /dev/null 2>&1 &
+          sleep 2
+          python tools/browser_check.py http://localhost:8600/ shots firefox,chromium,webkit,ipad,offline
+
+      - name: Release upgrade (returning visitors get new files, not cached ones)
+        run: python tools/upgrade_check.py
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: browser-screenshots
+          path: shots/
+
+  container:
+    # Builds the image Railway runs (Dockerfile + Caddyfile) and checks the addresses the live
+    # site must answer, so a broken server configuration is caught before it is deployed.
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build the image
+        run: docker build -t site .
+
+      - name: Smoke test
+        run: |
+          docker run -d --name site -p 8080:8080 site
+          sleep 2
+          bash tools/smoke_test.sh http://localhost:8080
+
+      - name: Server log
+        if: always()
+        run: docker logs site || true

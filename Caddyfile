@@ -1,0 +1,74 @@
+# Web server for the Railway deployment (see Dockerfile). Railway provides $PORT.
+# The Dockerfile puts the site together in /srv (tools/assemble.py): this repository's pages, plus
+# each project's pages, published from its own repository (projects.json).
+#   /                 home page (about me)                          this repository
+#   /battery-wear-cost, /perfect-hindsight-benchmark   posts        this repository
+#   /ai-grid-trader   the AI Grid Trader demo                       nolimitbaiza/ai-grid-trader
+#   /ai-grid-trader-case-study   the project write-up               nolimitbaiza/ai-grid-trader
+#   /pitwall/                    the Pitwall dashboard              nolimitbaiza/f1_constructor_performance_tracker
+#   /pitwall-case-study          the Pitwall write-up               nolimitbaiza/f1_constructor_performance_tracker
+:{$PORT:8080} {
+	root * /srv
+	encode zstd gzip
+
+	# Old and alternative addresses.
+	redir /about.html / permanent
+	redir /ai-grid-trader.html /ai-grid-trader{query} permanent
+	redir /ai-grid-trader/ /ai-grid-trader{query} permanent
+	redir /ai-grid-trader-case-study.html /ai-grid-trader-case-study permanent
+	redir /pitwall-case-study.html /pitwall-case-study permanent
+	# Pitwall loads its files by relative address, so it needs the trailing slash.
+	redir /pitwall /pitwall/ permanent
+	redir /battery-wear-cost.html /battery-wear-cost permanent
+	redir /perfect-hindsight-benchmark.html /perfect-hindsight-benchmark permanent
+
+	# Clean URLs: /ai-grid-trader serves ai-grid-trader.html.
+	try_files {path} {path}.html
+
+	# Standard security headers. No X-Frame-Options: the demo is meant to be embedded (?embed=1).
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "camera=(), microphone=(), geolocation=()"
+		-Server
+	}
+
+	# Caching. Pages and anything without a version must be re-checked with the server on every
+	# visit, so a new release is never mixed with old copies. Files the pages load carry a ?v=
+	# build stamp (see Dockerfile), so a new release asks for new addresses: those can be kept for
+	# a year. So can Plotly (its version is in the filename) and the fonts, which never change.
+	@stamped {
+		path /assets/*
+		query v=*
+	}
+	@long path /assets/vendor/* /assets/fonts/*
+	@site {
+		not path /assets/vendor/* /assets/fonts/*
+		not {
+			path /assets/*
+			query v=*
+		}
+	}
+	header @site Cache-Control "no-cache"
+	header @stamped Cache-Control "public, max-age=31536000, immutable"
+	header @long Cache-Control "public, max-age=31536000, immutable"
+	# The demo loop: with nosniff, browsers play it only if it's labelled as video.
+	@webm path *.webm
+	header @webm Content-Type "video/webm"
+
+	file_server
+
+	# Unknown addresses get the site's own "Page not found" page (still with status 404).
+	handle_errors {
+		@notFound `{err.status_code} == 404`
+		handle @notFound {
+			rewrite * /404.html
+			header Cache-Control "no-cache"
+			file_server
+		}
+		handle {
+			respond "{err.status_code} {err.status_text}"
+		}
+	}
+}
