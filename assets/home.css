@@ -748,7 +748,10 @@ body { font-family: var(--font-sans); font-optical-sizing: auto; }
 @keyframes underline  { from { background-size: 0% 0.08em; } }
 
 /* ---------- Page transitions: a quick cross-fade between pages of the site (Chrome, Edge, Safari 18.2+;
-   other browsers just navigate). The portfolio header is shared, so it stays put while the page changes. */
+   other browsers just navigate). The portfolio header is shared, so it stays put while the page changes.
+   The opt-in itself must also be inline in each page's <head> (see index.html): Chromium decides it before
+   a slow stylesheet such as this one has applied, then cancels the fade and reports an InvalidStateError.
+   It stays here too, for any page that has not added the inline rule yet. */
 @view-transition { navigation: auto; }
 ::view-transition-old(root), ::view-transition-new(root) { animation-duration: 220ms; animation-timing-function: var(--ease-out); }
 .about-page .site-header { view-transition-name: site-header; }
