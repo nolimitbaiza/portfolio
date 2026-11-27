@@ -11,6 +11,9 @@
   <!-- Self-contained on purpose: this page is shown for any unknown address, at any depth, so it
        cannot rely on the site's stylesheet through a relative path. Colours match assets/style.css. -->
   <style>
+    /* Page transitions: opted in like every page of the site (see index.html), so a link here doesn't cancel the fade. */
+    @view-transition { navigation: auto; }
+    @media (prefers-reduced-motion: reduce) { @view-transition { navigation: none; } }
     :root { --bg: #fafaf9; --surface: #ffffff; --ink: #0c0a09; --muted: #6f6863; --line: #e7e5e4; color-scheme: light; }
     :root[data-theme="dark"] { --bg: #0c0c0d; --surface: #151517; --ink: #f5f5f4; --muted: #a1a1aa; --line: #27272a; color-scheme: dark; }
     @media (prefers-color-scheme: dark) {

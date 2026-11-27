@@ -8,6 +8,7 @@ Exit code is non-zero if any check fails.
 import re
 import sys
 import tempfile
+import time
 from pathlib import Path
 
 from playwright.sync_api import sync_playwright
@@ -698,8 +699,32 @@ def run(pw, label, browser_type, **ctx):
         check("phone width: demo has no sideways scroll and keeps the case-study link",
               wide <= 0 and page.is_visible(".demo-header .nav-case"), f"{wide}px too wide")
         page.screenshot(path=str(SHOTS / "Chromium_phone.png"))
+        page_transitions_with_slow_css(browser, ctx, errors)
     check("no JavaScript errors", not errors, "; ".join(errors[:3]))
     browser.close()
+
+
+def page_transitions_with_slow_css(browser, ctx, errors):
+    """Chromium decides whether a page takes part in the cross-fade before a slow stylesheet has
+    applied. With the opt-in only in home.css it cancelled the fade and threw an InvalidStateError
+    ("ViewTransition opt-in disabled") whenever the stylesheets came late, so the full suite failed
+    now and then. Each page opts in inline in its <head>; here every stylesheet is slowed down so a
+    page that lost that inline rule fails every time, not only on a busy machine."""
+    context = browser.new_context(service_workers="block", **ctx)
+    context.route(re.compile(r"\.css(\?|$)"), lambda route: (time.sleep(0.4), route.continue_()))
+    context.add_init_script("addEventListener('pagereveal', (e) => {"
+                            " (window.__reveals = window.__reveals || []).push(!!e.viewTransition); });")
+    tab = context.new_page()
+    tab.on("pageerror", lambda e: errors.append(str(e)))
+    tab.goto(URL, wait_until="networkidle")
+    tab.click("#writing .post-row")
+    tab.wait_for_load_state("networkidle")
+    to_post = tab.evaluate("window.__reveals")
+    tab.go_back(wait_until="networkidle")
+    back_home = tab.evaluate("window.__reveals")
+    check("page transitions run with slow stylesheets (home page -> post -> back)",
+          to_post[-1:] == [True] and back_home[-1:] == [True], f"{to_post} / {back_home}")  # last: the page just shown
+    context.close()
 
 
 def offline(pw):
