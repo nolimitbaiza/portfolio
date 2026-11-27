@@ -207,16 +207,22 @@
       <article class="project" data-reveal data-spotlight>
         <div class="project-media project-media--bleed">
           <picture>
-            <source media="(max-width: 640px)" type="image/webp" srcset="assets/img/f1-dashboard-phone.webp?v=__BUILD__" width="1168" height="842">
-            <source media="(max-width: 640px)" srcset="assets/img/f1-dashboard-phone.png?v=__BUILD__" width="1168" height="842">
-            <source type="image/webp" srcset="assets/img/f1-dashboard.webp?v=__BUILD__" width="1956" height="1396">
-            <img src="assets/img/f1-dashboard.png?v=__BUILD__" width="1956" height="1396" loading="lazy" decoding="async" alt="Pitwall dashboard for the 2024 season: championship points, wins and podiums, a points-progression chart and the top-five constructor standings">
+            <source media="(max-width: 640px)" type="image/webp" srcset="assets/img/f1-dashboard-phone.webp?v=__BUILD__" width="1136" height="845">
+            <source media="(max-width: 640px)" srcset="assets/img/f1-dashboard-phone.png?v=__BUILD__" width="1136" height="845">
+            <source type="image/webp" srcset="assets/img/f1-dashboard.webp?v=__BUILD__" width="2272" height="1764">
+            <img class="only-light" src="assets/img/f1-dashboard.png?v=__BUILD__" width="2272" height="1764" loading="lazy" decoding="async" alt="Pitwall dashboard for the 2024 season: championship points, wins and podiums, a points-progression chart and the top-five constructor standings">
           </picture>
-          <!-- Silent loop through five seasons (tools/build_f1_shot.py); the still above is its first frame.
-               Pitwall is dark-only, so both themes get the same video. -->
-          <video class="demo-loop" muted loop playsinline preload="none" width="1956" height="1396" style="--loop-ratio: 1956 / 1396"
+          <picture>
+            <source media="(max-width: 640px)" type="image/webp" srcset="assets/img/f1-dashboard-phone-dark.webp?v=__BUILD__" width="1136" height="845">
+            <source media="(max-width: 640px)" srcset="assets/img/f1-dashboard-phone-dark.png?v=__BUILD__" width="1136" height="845">
+            <source type="image/webp" srcset="assets/img/f1-dashboard-dark.webp?v=__BUILD__" width="2272" height="1764">
+            <img class="only-dark" src="assets/img/f1-dashboard-dark.png?v=__BUILD__" width="2272" height="1764" loading="lazy" decoding="async" alt="Pitwall dashboard for the 2024 season: championship points, wins and podiums, a points-progression chart and the top-five constructor standings">
+          </picture>
+          <!-- Silent loop through five seasons (Pitwall's scripts/build_site_media.py); the still above is its
+               first frame. Pitwall follows the site's theme, so each theme gets its own video and still. -->
+          <video class="demo-loop" muted loop playsinline preload="none" width="2272" height="1764" style="--loop-ratio: 2272 / 1764"
             data-light="assets/video/pitwall-loop.webm?v=__BUILD__" data-light-poster="assets/img/f1-dashboard.png?v=__BUILD__"
-            data-dark="assets/video/pitwall-loop.webm?v=__BUILD__" data-dark-poster="assets/img/f1-dashboard.png?v=__BUILD__"
+            data-dark="assets/video/pitwall-loop-dark.webm?v=__BUILD__" data-dark-poster="assets/img/f1-dashboard-dark.png?v=__BUILD__"
             aria-label="Pitwall's overview stepping through the 2024, 1988, 2002, 2016 and 2023 seasons"></video>
           <button class="loop-toggle" type="button" aria-pressed="false" hidden>
             <svg class="i-pause" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M5 3.5v9M11 3.5v9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
