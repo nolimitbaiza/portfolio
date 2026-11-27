@@ -320,6 +320,29 @@ def run(pw, label, browser_type, **ctx):
         st = about.evaluate(loop)
         check("Home page: the pause button pauses the demo loop",
               st["paused"] and about.get_attribute(".loop-toggle", "aria-pressed") == "true", str(st))
+        # Back and forward a slide: the arrows appear with the pointer over the video, and jump
+        # between the slides' start times (wrapping round). Paused, they land once a slide has settled.
+        opacity = "+getComputedStyle(document.querySelector('.loop-next')).opacity"
+        box = about.locator("#work .project-media >> nth=0").bounding_box()
+        below = min(box["y"] + box["height"] + 30, about.viewport_size["height"] - 4)   # the card's text
+        about.mouse.move(box["x"] + box["width"] / 2, below)
+        about.wait_for_timeout(400)
+        away = about.evaluate(opacity)
+        about.mouse.move(box["x"] + box["width"] / 2, box["y"] + box["height"] / 2)
+        about.wait_for_timeout(400)
+        check("Home page: slide arrows appear only with the pointer over the demo video",
+              away == 0 and about.evaluate(opacity) == 1, f"{away} -> {about.evaluate(opacity)}")
+        seek = """async (sel) => { const v = document.querySelector('.demo-loop');
+            const done = new Promise((r) => v.addEventListener('seeked', r, {once: true}));
+            document.querySelector(sel).click(); await done; return +v.currentTime.toFixed(2); }"""
+        about.evaluate("""() => new Promise((r) => { const v = document.querySelector('.demo-loop');
+            v.addEventListener('seeked', r, {once: true}); v.currentTime = 1; })""")
+        hops = [about.evaluate(seek, s) for s in (".loop-next", ".loop-next", ".loop-prev", ".loop-prev", ".loop-prev")]
+        scenes = [float(x) for x in about.get_attribute(".demo-loop", "data-scenes").split()]
+        want = [round(scenes[i] + 1.2, 2) for i in (1, 2, 1, 0, len(scenes) - 1)]
+        check("Home page: slide arrows step back and forward through the demo",
+              all(abs(h - w) < 0.05 for h, w in zip(hops, want)) and about.evaluate("document.querySelector('.demo-loop').paused"),
+              f"{hops}, expected {want}")
         about.click(".loop-toggle")
         # It starts a little before the card arrives, so "away" is the bottom of the page.
         about.evaluate("scrollTo({top: document.body.scrollHeight, behavior: 'instant'})")

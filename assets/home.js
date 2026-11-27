@@ -141,6 +141,8 @@
     const media = loop.closest(".project-media");
     const toggle = media.querySelector(".loop-toggle");
     const toggleLabel = toggle.querySelector(".sr-only");
+    const steps = media.querySelectorAll(".loop-step");
+    const scenes = (loop.dataset.scenes || "").split(" ").filter(Boolean).map(Number);
     const wide = matchMedia("(min-width: 641px)");
     const canPlay = !!loop.canPlayType && loop.canPlayType('video/webm; codecs="vp9"') !== "";
     let visible = false, userPaused = false, theme = "", playing = false;
@@ -150,6 +152,7 @@
       const on = canPlay && wide.matches && !reduceMotion.matches;
       media.classList.toggle("has-loop", on && playing);
       toggle.hidden = !(on && playing);
+      steps.forEach((b) => { b.hidden = !(on && playing && scenes.length > 1); });
       if (!on) { loop.pause(); return; }
       const want = (window.Site && window.Site.theme()) === "dark" ? "dark" : "light";
       if (want !== theme) {
@@ -164,6 +167,27 @@
       if (visible && !userPaused) loop.play().catch(() => {});
       else loop.pause();
     };
+    // The arrows jump a slide back or forward (wrapping round), so a slide that went by too fast can
+    // be read again. The slide on screen is the last one that has started; a jump lands just before
+    // a slide starts, so its entrance plays, or, when paused, once it has settled.
+    steps.forEach((b) => b.addEventListener("click", () => {
+      const t = loop.currentTime;
+      let now = 0;
+      scenes.forEach((s, i) => { if (s <= t + 0.2) now = i; });
+      const next = (now + Number(b.dataset.step) + scenes.length) % scenes.length;
+      loop.currentTime = Math.max(0, scenes[next] + (loop.paused ? 1.2 : -0.05));
+    }));
+    // The card's stretched link lies over the video, so CSS :hover can't see the pointer over it:
+    // mark the video area as pointed at here, and the CSS shows the arrows.
+    if (steps.length) {
+      const card = media.closest(".project") || media;
+      const point = (e) => {
+        const r = media.getBoundingClientRect();
+        media.classList.toggle("is-pointed", e.pointerType === "mouse" && e.clientY >= r.top && e.clientY <= r.bottom);
+      };
+      card.addEventListener("pointermove", point, { passive: true });
+      card.addEventListener("pointerleave", () => media.classList.remove("is-pointed"), { passive: true });
+    }
     toggle.addEventListener("click", () => {
       userPaused = !userPaused;
       toggle.setAttribute("aria-pressed", String(userPaused));
