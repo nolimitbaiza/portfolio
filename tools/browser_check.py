@@ -337,8 +337,8 @@ def run(pw, label, browser_type, **ctx):
             return {on: m.classList.contains('has-loop'), paused: v.paused, t: v.currentTime, src: v.currentSrc.split('/').pop().split('?')[0],
                     button: !m.querySelector('.loop-toggle').hidden, ratio: +(v.offsetWidth / v.offsetHeight).toFixed(2)}; }""")
         check("Home page: Pitwall loop plays in view, at its own shape",
-              pit["on"] and not pit["paused"] and pit["t"] > 0 and pit["button"] and pit["src"] == "pitwall-loop.webm"
-              and abs(pit["ratio"] - 1956 / 1396) < 0.02, str(pit))
+              pit["on"] and not pit["paused"] and pit["t"] > 0 and pit["button"] and pit["src"] in ("pitwall-loop.webm", "pitwall-loop-dark.webm")
+              and abs(pit["ratio"] - 2272 / 1764) < 0.02, str(pit))
     about.evaluate("document.activeElement.blur(); scrollTo({top: 0, behavior: 'instant'})")
     about.wait_for_timeout(600)
     check("Home page: degree and graduation year shown", "Computer Science" in words and "May 2027" in words)
@@ -582,7 +582,7 @@ def run(pw, label, browser_type, **ctx):
             return { playing: b.classList.contains('is-playing') && !v.paused, src: v.currentSrc.split('/').pop().split('?')[0],
                      fits: Math.abs(vr.left - ir.left) < 2 && Math.abs(vr.width - ir.width) < 2 && Math.abs(vr.top - ir.top) < 2
                            && Math.abs(vr.height - ir.height) < 3 }; }""")
-        check("Pitwall case study: season loop plays, exactly over its still", clip["playing"] and clip["fits"] and clip["src"] == "pitwall-loop.webm", str(clip))
+        check("Pitwall case study: season loop plays, exactly over its still", clip["playing"] and clip["fits"] and clip["src"] in ("pitwall-loop.webm", "pitwall-loop-dark.webm"), str(clip))
         cs.evaluate("scrollTo(0, 0)")
     if label.startswith("Chromium"):
         for theme in ("light", "dark"):

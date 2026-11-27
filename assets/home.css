@@ -353,10 +353,10 @@ body { font-family: var(--font-sans); font-optical-sizing: auto; }
 .clip-toggle .i-play, .clip-toggle.is-paused .i-pause { display: none; }
 .clip-toggle.is-paused .i-play { display: block; }
 @media (max-width: 640px) { .clip-video, .clip-toggle { display: none !important; } }
-/* Pitwall's figure (dark-only dashboard): still and clip edge to edge on its own dark background. */
-.cs-figure--bleed .cs-figure-media { background: #111214; }
+/* Pitwall's media fill the frame edge to edge; the frame takes the page's own colour, as Pitwall does in both themes. */
+.cs-figure--bleed .cs-figure-media { background: var(--bg); }
 .cs-figure.cs-figure--bleed img { padding: 0; }
-.cs-figure--bleed .clip-video { left: 0; top: 0; width: 100%; aspect-ratio: 1956 / 1396; background: #111214; }
+.cs-figure--bleed .clip-video { left: 0; top: 0; width: 100%; aspect-ratio: 2272 / 1764; background: var(--bg); }
 
 .project-body-v2 {
   display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: var(--space-xl) var(--space-3xl);
@@ -455,7 +455,7 @@ body { font-family: var(--font-sans); font-optical-sizing: auto; }
 /* ---------- More projects and the phone crops ---------- */
 .project + .project { margin-top: var(--space-xl); }
 .project-media picture, .cs-figure picture { display: contents; }   /* <source> swaps in the phone crop */
-.project-media.project-media--bleed { background: #111214; }
+.project-media.project-media--bleed { background: var(--bg); }
 /* Demo loop (home.js adds .has-loop when it can play): replaces the screenshots on wider screens. */
 .project-media { position: relative; }
 /* Until it plays, the video sits unseen (still rendered, so every browser decodes it). */
