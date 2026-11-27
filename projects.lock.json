@@ -2,11 +2,11 @@
   "ai-grid-trader": {
     "repo": "nolimitbaiza/ai-grid-trader",
     "ref": "main",
-    "commit": "3b84f9dbfaec602424ee7ddd026b283b6ab99128"
+    "commit": "ecf9458b68a540bec048826d2efadef3f96596a5"
   },
   "pitwall": {
     "repo": "nolimitbaiza/f1_constructor_performance_tracker",
     "ref": "master",
-    "commit": "f0644ee33adbb0935641431c40d0133cc76c2356"
+    "commit": "3d938bcbeba45d094892361747a79b85ba066734"
   }
 }
