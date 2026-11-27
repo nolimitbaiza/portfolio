@@ -474,6 +474,22 @@ body { font-family: var(--font-sans); font-optical-sizing: auto; }
   box-shadow: var(--elev-1); cursor: pointer; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
 }
 .loop-toggle:hover { border-color: color-mix(in srgb, var(--ink) 28%, var(--line)); }
+/* Back and forward a slide: small arrows at the sides that appear while the pointer is over the
+   video (home.js sets .is-pointed) or a key has focused them. Touch screens have no hover, so
+   they keep them, quieter. */
+.loop-step {
+  position: absolute; top: 50%; z-index: 2; translate: 0 -50%;
+  display: grid; place-items: center; width: 32px; height: 32px; padding: 0;
+  border: 1px solid var(--line); border-radius: 50%;
+  background: color-mix(in srgb, var(--surface-raised) 88%, transparent); color: var(--ink);
+  box-shadow: var(--elev-1); cursor: pointer; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  opacity: 0; transition: opacity var(--dur-fast) linear, border-color var(--dur-fast) linear;
+}
+.loop-prev { left: 12px; }
+.loop-next { right: 12px; }
+.project-media.is-pointed .loop-step, .loop-step:focus-visible { opacity: 1; }
+.loop-step:hover { border-color: color-mix(in srgb, var(--ink) 28%, var(--line)); }
+@media (hover: none) { .loop-step { opacity: 0.75; } }
 .loop-toggle .i-play, .loop-toggle[aria-pressed="true"] .i-pause { display: none; }
 .loop-toggle[aria-pressed="true"] .i-play { display: block; }        /* Pitwall is dark-only: shot edge to edge */
 .project-media.project-media--bleed img { padding: 0; }

@@ -1,7 +1,7 @@
 """Local web server that behaves like the live site (see Caddyfile and tools/assemble.py): the
 whole site, put together from this repository and the projects, with clean URLs (so / is the home
-page and /ai-grid-trader serves ai-grid-trader.html), /pitwall redirected to /pitwall/, and
-unknown addresses answered with 404.html. Files are looked up on every request, so edits show
+page and /ai-grid-trader serves ai-grid-trader.html), /pitwall redirected to /pitwall/, byte
+ranges (so videos can be seeked), and unknown addresses answered with 404.html. Files are looked up on every request, so edits show
 up on reload.
 
 Usage: python tools/serve.py [port] [--project NAME=PATH ...]     (default port 8600)
@@ -10,6 +10,9 @@ Usage: python tools/serve.py [port] [--project NAME=PATH ...]     (default port 
 """
 import argparse
 import http.server
+import io
+import os
+import re
 import sys
 import urllib.parse
 from functools import partial
@@ -39,7 +42,31 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self.send_header("Location", f"/{address}/" + (f"?{query}" if query else ""))
             self.end_headers()
             return None
-        return super().send_head()
+        # Byte ranges, as Caddy sends them: browsers can only seek a video that the server serves in parts.
+        match = re.fullmatch(r"bytes=(\d*)-(\d*)", self.headers.get("Range", ""))
+        local = self.translate_path(self.path)
+        if not match or not os.path.isfile(local) or match.group(1) == match.group(2) == "":
+            return super().send_head()
+        size = os.path.getsize(local)
+        first, last = match.groups()
+        start = int(first) if first else max(size - int(last), 0)
+        end = min(int(last), size - 1) if first and last else size - 1
+        if start > end:
+            self.send_response(416)
+            self.send_header("Content-Range", f"bytes */{size}")
+            self.send_header("Content-Length", "0")
+            self.end_headers()
+            return None
+        with open(local, "rb") as f:
+            f.seek(start)
+            body = f.read(end - start + 1)
+        self.send_response(206)
+        self.send_header("Content-Type", self.guess_type(local))
+        self.send_header("Content-Range", f"bytes {start}-{end}/{size}")
+        self.send_header("Content-Length", str(len(body)))
+        self.send_header("Accept-Ranges", "bytes")
+        self.end_headers()
+        return io.BytesIO(body)
 
     def translate_path(self, path):
         address = urllib.parse.unquote(urllib.parse.urlsplit(path).path).lstrip("/")

@@ -166,11 +166,21 @@
           </picture>
           <!-- Silent demo loop (tools/build_demo_loop.py). On wider screens the still is the loop's first
                frame, so when home.js swaps the video in, nothing visibly changes until it moves. Phones
-               keep the phone crop; reduced motion and browsers without WebM/VP9 keep the still. -->
+               keep the phone crop; reduced motion and browsers without WebM/VP9 keep the still.
+               data-scenes: the second each slide starts at, in both videos (build_demo_loop.py prints them). -->
           <video class="demo-loop" muted loop playsinline preload="none" width="1920" height="1080"
             data-light="assets/video/demo-loop.webm?v=__BUILD__" data-light-poster="assets/img/demo-loop.jpg?v=__BUILD__"
             data-dark="assets/video/demo-loop-dark.webm?v=__BUILD__" data-dark-poster="assets/img/demo-loop-dark.jpg?v=__BUILD__"
+            data-scenes="0 2.7 7.2 11.7 17.8 21.7"
             aria-label="AI Grid Trader walking through 48 hours in Germany: why it buys, why it sells, the profit, then a full year"></video>
+          <button class="loop-step loop-prev" type="button" data-step="-1" hidden>
+            <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M10 3.5 5.5 8l4.5 4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="sr-only">Previous slide of the demo video</span>
+          </button>
+          <button class="loop-step loop-next" type="button" data-step="1" hidden>
+            <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="sr-only">Next slide of the demo video</span>
+          </button>
           <button class="loop-toggle" type="button" aria-pressed="false" hidden>
             <svg class="i-pause" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M5 3.5v9M11 3.5v9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
             <svg class="i-play" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M5 3.2v9.6L12.5 8z" fill="currentColor"/></svg>
