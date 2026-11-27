@@ -171,7 +171,7 @@
           <video class="demo-loop" muted loop playsinline preload="none" width="1920" height="1080"
             data-light="assets/video/demo-loop.webm?v=__BUILD__" data-light-poster="assets/img/demo-loop.jpg?v=__BUILD__"
             data-dark="assets/video/demo-loop-dark.webm?v=__BUILD__" data-dark-poster="assets/img/demo-loop-dark.jpg?v=__BUILD__"
-            data-scenes="0 2.7 7.2 11.7 17.8 21.7"
+            data-scenes="0 6.2 12.2 18.3 25.9 31.9"
             aria-label="AI Grid Trader walking through 48 hours in Germany: why it buys, why it sells, the profit, then a full year"></video>
           <button class="loop-step loop-prev" type="button" data-step="-1" hidden>
             <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M10 3.5 5.5 8l4.5 4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -219,25 +219,33 @@
           <picture>
             <source media="(max-width: 640px)" type="image/webp" srcset="assets/img/f1-dashboard-phone.webp?v=__BUILD__" width="1136" height="845">
             <source media="(max-width: 640px)" srcset="assets/img/f1-dashboard-phone.png?v=__BUILD__" width="1136" height="845">
-            <source type="image/webp" srcset="assets/img/f1-dashboard.webp?v=__BUILD__" width="2272" height="1764">
-            <img class="only-light" src="assets/img/f1-dashboard.png?v=__BUILD__" width="2272" height="1764" loading="lazy" decoding="async" alt="Pitwall dashboard for the 2024 season: championship points, wins and podiums, a points-progression chart and the top-five constructor standings">
+            <img class="only-light" src="assets/img/pitwall-tour.jpg?v=__BUILD__" width="1920" height="1080" loading="lazy" decoding="async" alt="Pitwall's tour: every Formula 1 constructors' championship since 1958, and how many Grands Prix each season had">
           </picture>
           <picture>
             <source media="(max-width: 640px)" type="image/webp" srcset="assets/img/f1-dashboard-phone-dark.webp?v=__BUILD__" width="1136" height="845">
             <source media="(max-width: 640px)" srcset="assets/img/f1-dashboard-phone-dark.png?v=__BUILD__" width="1136" height="845">
-            <source type="image/webp" srcset="assets/img/f1-dashboard-dark.webp?v=__BUILD__" width="2272" height="1764">
-            <img class="only-dark" src="assets/img/f1-dashboard-dark.png?v=__BUILD__" width="2272" height="1764" loading="lazy" decoding="async" alt="Pitwall dashboard for the 2024 season: championship points, wins and podiums, a points-progression chart and the top-five constructor standings">
+            <img class="only-dark" src="assets/img/pitwall-tour-dark.jpg?v=__BUILD__" width="1920" height="1080" loading="lazy" decoding="async" alt="Pitwall's tour: every Formula 1 constructors' championship since 1958, and how many Grands Prix each season had">
           </picture>
-          <!-- Silent loop through five seasons (Pitwall's scripts/build_site_media.py); the still above is its
-               first frame. Pitwall follows the site's theme, so each theme gets its own video and still. -->
-          <video class="demo-loop" muted loop playsinline preload="none" width="2272" height="1764" style="--loop-ratio: 2272 / 1764"
-            data-light="assets/video/pitwall-loop.webm?v=__BUILD__" data-light-poster="assets/img/f1-dashboard.png?v=__BUILD__"
-            data-dark="assets/video/pitwall-loop-dark.webm?v=__BUILD__" data-dark-poster="assets/img/f1-dashboard-dark.png?v=__BUILD__"
-            aria-label="Pitwall's overview stepping through the 2024, 1988, 2002, 2016 and 2023 seasons"></video>
+          <!-- Silent tour of Pitwall (its scripts/build_tour.py): six slides, like AI Grid Trader's presenter
+               mode above. The wide still is its first frame; phones keep the championship chart crop.
+               data-scenes: the second each slide starts at, in both videos (build_tour.py prints them). -->
+          <video class="demo-loop" muted loop playsinline preload="none" width="1920" height="1080"
+            data-light="assets/video/pitwall-tour.webm?v=__BUILD__" data-light-poster="assets/img/pitwall-tour.jpg?v=__BUILD__"
+            data-dark="assets/video/pitwall-tour-dark.webm?v=__BUILD__" data-dark-poster="assets/img/pitwall-tour-dark.jpg?v=__BUILD__"
+            data-scenes="0 6.2 12.7 19.7 26.3 33.3"
+            aria-label="Pitwall in six slides: its data since 1958, why raw points can't compare eras, scoring by share of the points, the most dominant title runs, the latest season, and the dashboard"></video>
+          <button class="loop-step loop-prev" type="button" data-step="-1" hidden>
+            <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M10 3.5 5.5 8l4.5 4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="sr-only">Previous slide of the Pitwall video</span>
+          </button>
+          <button class="loop-step loop-next" type="button" data-step="1" hidden>
+            <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="sr-only">Next slide of the Pitwall video</span>
+          </button>
           <button class="loop-toggle" type="button" aria-pressed="false" hidden>
             <svg class="i-pause" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M5 3.5v9M11 3.5v9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
             <svg class="i-play" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M5 3.2v9.6L12.5 8z" fill="currentColor"/></svg>
-            <span class="sr-only">Pause the demo video</span>
+            <span class="sr-only">Pause the Pitwall video</span>
           </button>
         </div>
         <div class="project-body-v2">

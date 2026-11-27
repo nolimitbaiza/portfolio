@@ -42,6 +42,8 @@ const ASSETS = [
   "assets/img/project-chart-phone.webp" + V,
   "assets/img/project-chart-phone-dark.webp" + V,
   "assets/img/f1-dashboard.webp" + V,
+  "assets/img/pitwall-tour.jpg" + V,
+  "assets/img/pitwall-tour-dark.jpg" + V,
   "assets/img/f1-dashboard-phone.webp" + V,
   "assets/Baizak-Isaev-Resume.pdf" + V,
   "assets/vendor/plotly-basic-2.35.2.min.js",

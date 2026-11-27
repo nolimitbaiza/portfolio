@@ -132,10 +132,11 @@
   }
 
   // ------------------------------------------------------------------ 5b. Demo loops on the project cards
-  // A silent loop (AI Grid Trader's presenter mode, Pitwall's seasons) replaces the screenshots on
-  // wider screens. It loads nothing until the card is near the screen, plays only while visible,
-  // follows the theme (Pitwall is dark-only: one video for both), and has a pause button. The screenshots stay until the video is really playing, so phones (the phone
-  // crop reads better), reduced motion and browsers that can't play WebM/VP9 keep them.
+  // A silent walkthrough (AI Grid Trader's presenter mode, Pitwall's tour) replaces the screenshots
+  // on wider screens. It loads nothing until the card is near the screen, plays only while in view,
+  // follows the theme, and has a pause button and arrows to step through its slides. The screenshots
+  // stay until the video is really playing, so phones (the phone crop reads better), reduced motion
+  // and browsers that can't play WebM/VP9 keep them.
   document.querySelectorAll(".demo-loop").forEach((loop) => {
     if (!hasIO) return;
     const media = loop.closest(".project-media");
@@ -194,12 +195,19 @@
       toggleLabel.textContent = userPaused ? "Play the demo video" : "Pause the demo video";
       sync();
     });
-    // Starts a little before the card scrolls into view, so it is already moving when it arrives.
+    // Loads a little before the card scrolls into view, but starts only once at least half of the
+    // video is on screen, so the first slide is seen from its start. It pauses once fully gone.
     new IntersectionObserver((entries) => {
-      visible = entries[entries.length - 1].isIntersecting;
-      if (visible) loop.preload = "auto";
+      if (entries[entries.length - 1].isIntersecting) loop.preload = "auto";
+    }, { rootMargin: "300px 0px" }).observe(media);
+    new IntersectionObserver((entries) => {
+      const e = entries[entries.length - 1];
+      // (or it fills half the window, for a short window)
+      const half = e.intersectionRatio >= 0.5 || (!!e.rootBounds && e.intersectionRect.height >= e.rootBounds.height * 0.5);
+      if (half) visible = true;
+      else if (!e.isIntersecting) visible = false;
       sync();
-    }, { rootMargin: "250px 0px" }).observe(media);
+    }, { threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.8, 1] }).observe(media);
     wide.addEventListener("change", sync);
     reduceMotion.addEventListener("change", sync);
     document.addEventListener("site:theme", sync);

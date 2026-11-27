@@ -27,6 +27,7 @@ expect 200 /battery-wear-cost   "Does the agent need to know"
 expect 200 /perfect-hindsight-benchmark "What a worse forecast costs"
 expect 200 /assets/video/demo-loop.webm "webm"
 expect 200 /assets/video/pitwall-loop.webm "webm"
+expect 200 /assets/video/pitwall-tour.webm "webm"
 curl -sI $BASE/assets/video/demo-loop.webm | grep -qi "content-type: video/webm" \
   || { echo "FAIL demo loop is not served as video/webm"; exit 1; }
 expect 301 /about.html

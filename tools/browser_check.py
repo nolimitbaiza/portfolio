@@ -291,14 +291,22 @@ def run(pw, label, browser_type, **ctx):
         about.wait_for_function("[...document.querySelectorAll('#work .project:nth-of-type(2) picture img')].some((i) => i.currentSrc && i.complete)", timeout=8000)
     except Exception:
         pass
-    webp = about.evaluate("""() => [...document.querySelectorAll('#work .project:nth-of-type(2) picture img')].filter(i => i.currentSrc)
+    still = about.evaluate("""() => [...document.querySelectorAll('#work .project:nth-of-type(2) picture img')].filter(i => i.currentSrc)
         .map(i => i.currentSrc.split('/').pop().split('?')[0])""")
-    check("Home page: Pitwall screenshot loads as WebP", webp and all(w.endswith(".webp") for w in webp), str(webp))
+    check("Home page: Pitwall's wide still is its tour's first frame", still and all(w.startswith("pitwall-tour") for w in still), str(still))
     # The demo loop: plays in view where WebM/VP9 plays, otherwise the screenshots stay.
     loop = """() => { const v = document.querySelector('.demo-loop'), m = v.closest('.project-media');
         return {on: m.classList.contains('has-loop'), paused: v.paused, t: v.currentTime, src: v.currentSrc.split('/').pop().split('?')[0],
                 button: !m.querySelector('.loop-toggle').hidden,
                 shots: [...m.querySelectorAll('picture img')].filter((i) => getComputedStyle(i).display !== 'none').length}; }"""
+    if browser_type is not pw.webkit:
+        # It waits until at least half of the video is on screen, so the first slide is seen from its start.
+        about.evaluate("""() => { const m = document.querySelector('#work .project-media'), r = m.getBoundingClientRect();
+            scrollBy({top: r.top - innerHeight + r.height * 0.2, behavior: 'instant'}); }""")
+        about.wait_for_timeout(1500)
+        st = about.evaluate(loop)
+        check("Home page: demo video waits, at its first slide, while mostly below the screen",
+              st["paused"] and st["t"] == 0 and st["shots"] == 1, str(st))
     about.evaluate("document.querySelector('#work .project-media').scrollIntoView({block: 'center', behavior: 'instant'})")
     if browser_type is pw.webkit:
         about.wait_for_timeout(800)
@@ -350,7 +358,7 @@ def run(pw, label, browser_type, **ctx):
         check("Home page: demo loop pauses when scrolled away", about.evaluate(loop)["paused"])
         check("Home page: the wide still is the loop's first frame (no visible swap)",
               about.evaluate("[...document.querySelectorAll('#work .project:nth-of-type(1) .project-media picture img')].every((i) => /demo-loop(-dark)?\.jpg/.test(i.src))"))
-        # Pitwall's card has its own loop through five seasons: one video for both themes.
+        # Pitwall's card has its own tour, in the same shape as AI Grid Trader's, with the same arrows.
         about.evaluate("document.querySelector('#work .project:nth-of-type(2) .project-media').scrollIntoView({block: 'center', behavior: 'instant'})")
         try:
             about.wait_for_function("document.querySelector('#work .project:nth-of-type(2) .project-media').classList.contains('has-loop')", timeout=10000)
@@ -359,10 +367,18 @@ def run(pw, label, browser_type, **ctx):
         about.wait_for_timeout(600)
         pit = about.evaluate("""() => { const m = document.querySelector('#work .project:nth-of-type(2) .project-media'), v = m.querySelector('.demo-loop');
             return {on: m.classList.contains('has-loop'), paused: v.paused, t: v.currentTime, src: v.currentSrc.split('/').pop().split('?')[0],
-                    button: !m.querySelector('.loop-toggle').hidden, ratio: +(v.offsetWidth / v.offsetHeight).toFixed(2)}; }""")
-        check("Home page: Pitwall loop plays in view, at its own shape",
-              pit["on"] and not pit["paused"] and pit["t"] > 0 and pit["button"] and pit["src"] in ("pitwall-loop.webm", "pitwall-loop-dark.webm")
-              and abs(pit["ratio"] - 2272 / 1764) < 0.02, str(pit))
+                    button: !m.querySelector('.loop-toggle').hidden, arrows: [...m.querySelectorAll('.loop-step')].filter((b) => !b.hidden).length,
+                    ratio: +(v.offsetWidth / v.offsetHeight).toFixed(2)}; }""")
+        check("Home page: Pitwall tour plays in view, at 16:9, with its arrows",
+              pit["on"] and not pit["paused"] and pit["t"] > 0 and pit["button"] and pit["arrows"] == 2
+              and pit["src"] in ("pitwall-tour.webm", "pitwall-tour-dark.webm") and abs(pit["ratio"] - 16 / 9) < 0.02, str(pit))
+        hop = about.evaluate("""async () => { const m = document.querySelector('#work .project:nth-of-type(2) .project-media'), v = m.querySelector('.demo-loop');
+            m.querySelector('.loop-toggle').click();
+            const done = new Promise((r) => v.addEventListener('seeked', r, {once: true}));
+            m.querySelector('.loop-prev').click(); await done;
+            const scenes = v.dataset.scenes.split(' ').map(Number), t = +v.currentTime.toFixed(2);
+            m.querySelector('.loop-toggle').click(); return [t, scenes]; }""")
+        check("Home page: Pitwall's arrows step through its slides", hop[1] and len(hop[1]) == 6 and hop[0] > hop[1][4], str(hop))
     about.evaluate("document.activeElement.blur(); scrollTo({top: 0, behavior: 'instant'})")
     about.wait_for_timeout(600)
     check("Home page: degree and graduation year shown", "Computer Science" in words and "May 2027" in words)
