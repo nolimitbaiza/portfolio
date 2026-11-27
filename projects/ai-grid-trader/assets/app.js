@@ -23,7 +23,7 @@
   };
   // Real markets: a full calendar year of 15-minute prices each (see tools/build_markets.py).
   const REAL = window.GRID_MARKETS || {};
-  // Build stamp: the Dockerfile replaces __BUILD__ on every deploy, so file addresses change with
+  // Build stamp: the site's build replaces __BUILD__ on every deploy, so file addresses change with
   // each release and no browser or CDN cache can serve an old copy next to a new page.
   const BUILD = "__BUILD__";
   let uploaded = null;                    // a market built from the visitor's CSV
